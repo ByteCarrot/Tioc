@@ -5,6 +5,7 @@ class TestClass {
     value:string = 'TestClass';
     someString:string;
     someNumber:number;
+    static $inject = ['SomeStringService','SomeNumberService'];
     constructor (someString:string, someNumber:number) {
         this.someString = someString;
         this.someNumber = someNumber;
@@ -60,6 +61,32 @@ describe('Reflector', function () {
             expect(() => reflector.analyze(undefined)).toThrow();
             expect(() => reflector.analyze(null)).toThrow();
             expect(() => reflector.analyze({})).toThrow();
+        });
+    });
+});
+
+describe('Activator', () => {
+    var activator:ByteCarrot.Tioc.Activator;
+    beforeEach(() => {
+        activator = new ByteCarrot.Tioc.Activator();
+    });
+
+    describe('createInstance', () => {
+        function Test() {
+            this.value = 'Test class';
+        }
+        function Test2(value:string) {
+            this.value = value;
+        }
+        it('should create instance using parameterless constructor', () => {
+            var obj = activator.createInstance(Test, []);
+            expect(typeof obj).toBe('object');
+            expect(obj.value).toBe('Test class');
+        });
+        it('should create instance using constructor with a single argument', () => {
+            var obj = activator.createInstance(Test2, ['alamakota']);
+            expect(typeof obj).toBe('object');
+            expect(obj.value).toBe('alamakota');
         });
     });
 });

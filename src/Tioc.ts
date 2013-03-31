@@ -24,6 +24,16 @@ module ByteCarrot.Tioc {
         }
     }
 
+    export class Activator {
+        public createInstance(fn:any, args:any[]) {
+            function F() {
+                return fn.apply(this, args);
+            }
+            F.prototype = fn.prototype;
+            return new F();
+        };
+    }
+
     export class Container {
         private reflector:Reflector = new Reflector();
         private registry:{} = {};

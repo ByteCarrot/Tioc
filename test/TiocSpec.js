@@ -4,6 +4,10 @@ var TestClass = (function () {
         this.someString = someString;
         this.someNumber = someNumber;
     }
+    TestClass.$inject = [
+        'SomeStringService', 
+        'SomeNumberService'
+    ];
     return TestClass;
 })();
 var OtherClass = (function () {
@@ -66,6 +70,32 @@ describe('Reflector', function () {
                 return reflector.analyze({
                 });
             }).toThrow();
+        });
+    });
+});
+describe('Activator', function () {
+    var activator;
+    beforeEach(function () {
+        activator = new ByteCarrot.Tioc.Activator();
+    });
+    describe('createInstance', function () {
+        function Test() {
+            this.value = 'Test class';
+        }
+        function Test2(value) {
+            this.value = value;
+        }
+        it('should create instance using parameterless constructor', function () {
+            var obj = activator.createInstance(Test, []);
+            expect(typeof obj).toBe('object');
+            expect(obj.value).toBe('Test class');
+        });
+        it('should create instance using constructor with a single argument', function () {
+            var obj = activator.createInstance(Test2, [
+                'alamakota'
+            ]);
+            expect(typeof obj).toBe('object');
+            expect(obj.value).toBe('alamakota');
         });
     });
 });

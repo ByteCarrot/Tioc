@@ -27,6 +27,18 @@ var ByteCarrot;
             return Reflector;
         })();
         Tioc.Reflector = Reflector;        
+        var Activator = (function () {
+            function Activator() { }
+            Activator.prototype.createInstance = function (fn, args) {
+                function F() {
+                    return fn.apply(this, args);
+                }
+                F.prototype = fn.prototype;
+                return new F();
+            };
+            return Activator;
+        })();
+        Tioc.Activator = Activator;        
         var Container = (function () {
             function Container() {
                 this.reflector = new Reflector();
