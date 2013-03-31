@@ -5,7 +5,7 @@ basePath = '';
 files = [
     JASMINE,
     JASMINE_ADAPTER,
-    'src/ioc.js',
+    'src/**/*.js',
     'test/**/*Spec.js'
 ];
 

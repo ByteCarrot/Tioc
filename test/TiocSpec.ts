@@ -1,10 +1,10 @@
 /// <reference path="jasmine.d.ts" />
-/// <reference path="../src/ioc.ts" />
+/// <reference path="../src/Tioc.ts" />
 
 class TestClass {
+    value:string = 'TestClass';
     someString:string;
     someNumber:number;
-    $inject:string[] = ['SomeClass','SomeClass2'];
     constructor (someString:string, someNumber:number) {
         this.someString = someString;
         this.someNumber = someNumber;
@@ -154,10 +154,45 @@ describe('Container', () => {
         it('should throw error if second argument is not a function', () => {
             expect(() => container.Register('functionName','not a function')).toThrow();
         });
+        it('should throw error if anonymous function is registered as a class (with UpperCamelCase key)', () => {
+            expect(() => container.Register('SomeClass', () => { return 'function'; })).toThrow();
+        });
+        it('should throw error if key is not a valid identifier', () => {
+            expect(() => container.Register('some Identifier', () => {})).toThrow();
+            expect(() => container.Register('Some Identifier', TestClass)).toThrow();
+        });
     });
 
     describe('Resolve', () => {
-        beforeEach(() => { 
+        function function1() {
+            return 'function1';
+        }
+        function function3() {
+            this.value = 'function3';
+        }
+        beforeEach(() => {
+            container.Register(function1);
+            container.Register('function2', () => { return 'function2'; });
+            container.Register(TestClass);
+            container.Register('TestClass2', function3);
+        });
+        it('should resolve function registered with its original name', () => {
+            var fn = container.Resolve('function1');
+            expect(fn()).toBe('function1');
+        });
+        it('should resolve anonymous function registered with custom name', () => {
+            var fn = container.Resolve('function2');
+            expect(fn()).toBe('function2');
+        });
+        it('should resolve class registered with its original name', () => {
+            var obj = container.Resolve('TestClass');
+            expect(typeof obj).toBe('object');
+            expect(obj.value).toBe('TestClass');
+        });
+        it('should resolve class registered with custom name', () => {
+            var obj = container.Resolve('TestClass2');
+            expect(typeof obj).toBe('object');
+            expect(obj.value).toBe('function3');
         });
     });
 });

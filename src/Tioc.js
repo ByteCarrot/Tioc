@@ -11,10 +11,9 @@ var ByteCarrot;
         var Reflector = (function () {
             function Reflector() { }
             Reflector.prototype.analyze = function (fn) {
-                if(fn === undefined || fn === null || (typeof fn) !== 'function') {
+                if(!_.isFunction(fn)) {
                     throw new Error('Function expected');
                 }
-                console.log(typeof fn);
                 var result = new ReflectionInfo();
                 result.name = fn.name === '' ? null : fn.name;
                 result.kind = 'function';
@@ -53,7 +52,7 @@ var ByteCarrot;
                 }
             };
             Container.prototype.Register1 = function (fn) {
-                if(fn === undefined || fn === null || typeof fn !== 'function') {
+                if(!_.isFunction(fn)) {
                     throw new Error('Argument should be a function');
                 }
                 var info = this.reflector.analyze(fn);
@@ -66,15 +65,19 @@ var ByteCarrot;
                 this.registry[info.name] = fn;
             };
             Container.prototype.Register2 = function (key, fn) {
-                if(key === undefined || key === null || typeof key !== 'string') {
+                if(!_.isNotEmptyString(key)) {
                     throw new Error('First argument should be a string');
                 }
                 key = key.trim();
-                if(key === '') {
-                    throw new Error('First argument cannot be an empty string');
+                if(!_.isIdentifier(key)) {
+                    throw new Error('Key is not a valid identifier');
                 }
-                if(fn === undefined || fn === null || typeof fn !== 'function') {
+                if(!_.isFunction(fn)) {
                     throw new Error('Second argument should be a function');
+                }
+                var info = this.reflector.analyze(fn);
+                if(info.name === null && this.isClass(key)) {
+                    throw new Error('Anonymous function cannot be register as a class');
                 }
                 if(this.IsRegistered(key)) {
                     throw new Error('Function already registered');
@@ -102,10 +105,19 @@ var ByteCarrot;
                 }
                 return this.registry[key] !== undefined && this.registry[key] !== null;
             };
+            Container.prototype.Resolve = function (key) {
+                if(this.isClass(key)) {
+                    return new this.registry[key]();
+                }
+                return this.registry[key];
+            };
+            Container.prototype.isClass = function (key) {
+                return key[0] === key[0].toUpperCase();
+            };
             return Container;
         })();
         Tioc.Container = Container;        
     })(ByteCarrot.Tioc || (ByteCarrot.Tioc = {}));
     var Tioc = ByteCarrot.Tioc;
 })(ByteCarrot || (ByteCarrot = {}));
-//@ sourceMappingURL=ioc.js.map
+//@ sourceMappingURL=Tioc.js.map

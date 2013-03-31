@@ -2,8 +2,10 @@
   <library name="Generated files" type="javaScript">
     <properties>
       <sourceFilesUrls>
-        <item url="file://$PROJECT_DIR$/test/iocSpec.js" />
-        <item url="file://$PROJECT_DIR$/src/ioc.js" />
+        <item url="file://$PROJECT_DIR$/src/Tools.js" />
+        <item url="file://$PROJECT_DIR$/test/ToolsSpec.js" />
+        <item url="file://$PROJECT_DIR$/src/Tioc.js" />
+        <item url="file://$PROJECT_DIR$/test/TiocSpec.js" />
       </sourceFilesUrls>
     </properties>
     <CLASSES>
@@ -13,6 +15,12 @@
       <root url="file://$PROJECT_DIR$/test/ReflectorSpec.js" />
       <root url="file://$PROJECT_DIR$/test/iocSpec.js" />
       <root url="file://$PROJECT_DIR$/src/ioc.js" />
+      <root url="file://$PROJECT_DIR$/test/iocSpec.js" />
+      <root url="file://$PROJECT_DIR$/src/ioc.js" />
+      <root url="file://$PROJECT_DIR$/src/Tools.js" />
+      <root url="file://$PROJECT_DIR$/test/ToolsSpec.js" />
+      <root url="file://$PROJECT_DIR$/src/Tioc.js" />
+      <root url="file://$PROJECT_DIR$/test/TiocSpec.js" />
     </CLASSES>
     <SOURCES />
   </library>

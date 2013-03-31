@@ -1,9 +1,6 @@
 var TestClass = (function () {
     function TestClass(someString, someNumber) {
-        this.$inject = [
-            'SomeClass', 
-            'SomeClass2'
-        ];
+        this.value = 'TestClass';
         this.someString = someString;
         this.someNumber = someNumber;
     }
@@ -209,10 +206,56 @@ describe('Container', function () {
                 return container.Register('functionName', 'not a function');
             }).toThrow();
         });
+        it('should throw error if anonymous function is registered as a class (with UpperCamelCase key)', function () {
+            expect(function () {
+                return container.Register('SomeClass', function () {
+                    return 'function';
+                });
+            }).toThrow();
+        });
+        it('should throw error if key is not a valid identifier', function () {
+            expect(function () {
+                return container.Register('some Identifier', function () {
+                });
+            }).toThrow();
+            expect(function () {
+                return container.Register('Some Identifier', TestClass);
+            }).toThrow();
+        });
     });
     describe('Resolve', function () {
+        function function1() {
+            return 'function1';
+        }
+        function function3() {
+            this.value = 'function3';
+        }
         beforeEach(function () {
+            container.Register(function1);
+            container.Register('function2', function () {
+                return 'function2';
+            });
+            container.Register(TestClass);
+            container.Register('TestClass2', function3);
+        });
+        it('should resolve function registered with its original name', function () {
+            var fn = container.Resolve('function1');
+            expect(fn()).toBe('function1');
+        });
+        it('should resolve anonymous function registered with custom name', function () {
+            var fn = container.Resolve('function2');
+            expect(fn()).toBe('function2');
+        });
+        it('should resolve class registered with its original name', function () {
+            var obj = container.Resolve('TestClass');
+            expect(typeof obj).toBe('object');
+            expect(obj.value).toBe('TestClass');
+        });
+        it('should resolve class registered with custom name', function () {
+            var obj = container.Resolve('TestClass2');
+            expect(typeof obj).toBe('object');
+            expect(obj.value).toBe('function3');
         });
     });
 });
-//@ sourceMappingURL=iocSpec.js.map
+//@ sourceMappingURL=TiocSpec.js.map
