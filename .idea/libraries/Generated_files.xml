@@ -1,0 +1,19 @@
+<component name="libraryTable">
+  <library name="Generated files" type="javaScript">
+    <properties>
+      <sourceFilesUrls>
+        <item url="file://$PROJECT_DIR$/test/iocSpec.js" />
+        <item url="file://$PROJECT_DIR$/src/ioc.js" />
+      </sourceFilesUrls>
+    </properties>
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/source/contentscript.js" />
+      <root url="file://$PROJECT_DIR$/source/background.js" />
+      <root url="file://$PROJECT_DIR$/test/ReflectorSpec.js" />
+      <root url="file://$PROJECT_DIR$/test/ReflectorSpec.js" />
+      <root url="file://$PROJECT_DIR$/test/iocSpec.js" />
+      <root url="file://$PROJECT_DIR$/src/ioc.js" />
+    </CLASSES>
+    <SOURCES />
+  </library>
+</component>
