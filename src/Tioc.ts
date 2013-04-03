@@ -86,6 +86,27 @@ module ByteCarrot.Tioc {
             }
             return this.registry[key];
         }
+        private collectDependencies(item:RegistryItem):any[] {
+            var deps = [];
+            for (var i in item.dependencies) {
+                deps.push(this.resolve(item.dependencies[i]));
+            }
+            return deps;
+        }
+        private registerFunctionInternal(type:string, args:any[]):void {
+            if (args.length === 1 && Value.isFunction(args[0])) {
+                var info = this.reflector.analyze(args[0]);
+                if (info.name === null) {
+                    throw new Error('Anonymous function can be only registered with key provided');
+                }
+                this.set(info.name, type, args[0], info.members);
+            } else if (args.length === 2 && Value.isNotEmptyString(args[0]) && Value.isFunction(args[1])) {
+                var info = this.reflector.analyze(args[1]);
+                this.set(args[0], type, args[1], info.members);
+            } else {
+                throw new Error('Invalid arguments');
+            }
+        }
         public registerClass(...args:any[]):void {
             if (args.length === 1 && Value.isFunction(args[0])) {
                 var info = this.reflector.analyze(args[0]);
@@ -104,18 +125,10 @@ module ByteCarrot.Tioc {
             }
         }
         public registerFunction(...args:any[]):void {
-            if (args.length === 1 && Value.isFunction(args[0])) {
-                var info = this.reflector.analyze(args[0]);
-                if (info.name === null) {
-                    throw new Error('Anonymous function can be only registered with key provided');
-                }
-                this.set(info.name, 'function', args[0], []);
-            } else if (args.length === 2 && Value.isNotEmptyString(args[0]) && Value.isFunction(args[1])) {
-                var info = this.reflector.analyze(args[1]);
-                this.set(args[0], 'function', args[1], []);
-            } else {
-                throw new Error('Invalid arguments');
-            }
+            this.registerFunctionInternal('function', args);
+        }
+        public registerFactory(...args:any[]):void {
+            this.registerFunctionInternal('factory', args);
         }
         public registerValue(key:any, value:any):void {
             if (!Value.isNotEmptyString(key)) {
@@ -134,13 +147,11 @@ module ByteCarrot.Tioc {
         }
         public resolve(key:string):any {
             var item = this.get(key);
-
             if (item.type === 'class') {
-                var args = [];
-                for (var i in item.dependencies) {
-                    args.push(this.resolve(item.dependencies[i]));
-                }
-                return this.activator.createInstance(item.value, args);
+                return this.activator.createInstance(item.value, this.collectDependencies(item));
+            }
+            if (item.type === 'factory') {
+                return item.value.apply(null, this.collectDependencies(item));
             }
             return this.get(key).value;
         }

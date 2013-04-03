@@ -287,6 +287,60 @@ describe('Container', () => {
             });
         });
     });
+    describe('registerFactory method', () => {
+        describe('invoked with one argument', () => {
+            it('should throw error if argument is not a valid function', () => {
+                expect(() => container.registerFactory(undefined)).toThrow();
+                expect(() => container.registerFactory(null)).toThrow();
+                expect(() => container.registerFactory('')).toThrow();
+                expect(() => container.registerFactory({})).toThrow();
+            });
+            it('should throw error if argument is anonymous function', () => {
+                expect(() => container.registerFactory(function (arg) {})).toThrow();
+            });
+            it('should throw error if element with specified key is already registered', () => {
+                function someFunction() {};
+                container.registerFactory(someFunction);
+                expect(() => container.registerFactory(someFunction)).toThrow();
+            });
+            it('should register function using its original name', () => {
+                function someFunction() {};
+                container.registerFactory(someFunction);
+                expect(container.isRegistered('someFunction')).toBeTruthy();
+            });
+        });
+        describe('invoked with two arguments', () => {
+            it('should throw error if key is not a string', () => {
+                expect(() => container.registerFactory(undefined, testFunction)).toThrow();
+                expect(() => container.registerFactory(null, testFunction)).toThrow();
+                expect(() => container.registerFactory('', testFunction)).toThrow();
+                expect(() => container.registerFactory({}, testFunction)).toThrow();
+                expect(() => container.registerFactory('    ', testFunction)).toThrow();
+            });
+            it('should throw error if key is not a valid JavaScript identifier', () => {
+                expect(() => container.registerFactory(' 4_asd-? ', testFunction)).toThrow();
+            });
+            it('should throw error if value is not a valid function', () => {
+                expect(() => container.registerFactory('someKey', undefined)).toThrow();
+                expect(() => container.registerFactory('someKey', null)).toThrow();
+                expect(() => container.registerFactory('someKey', '')).toThrow();
+                expect(() => container.registerFactory('someKey', {})).toThrow();
+            });
+            it('should throw error if element with specified key is already registered', () => {
+                container.registerFactory('someKey', testFunction);
+                expect(() => container.registerFactory('someKey', testFunction)).toThrow();
+            });
+            it('should register function using specified key', () => {
+                container.registerFactory('someKey', testFunction);
+                expect(container.isRegistered('someKey')).toBeTruthy();
+            });
+        });
+        describe('invoked with invalid count of arguments', () => {
+            it('should throw error', () => {
+                expect(() => container.registerFactory('someKey', testFunction, 123)).toThrow();
+            });
+        });
+    });
     describe('registerValue method', () => {
         it('should throw error if key is not a string', () => {
             expect(() => container.registerValue(undefined, {})).toThrow();
@@ -316,6 +370,9 @@ describe('Container', () => {
             container.registerClass('dependency1', TestClass2);
             container.registerFunction(testFunction);
             container.registerFunction('dependency2', testFunction2);
+            container.registerFactory(testFactory);
+            container.registerFactory(testFactory2);
+            container.registerFactory('dependency3', () => { return 'dependency3'; });
         });
         describe('should return class', () => {
             it('registered with its original name', () => {
@@ -347,6 +404,23 @@ describe('Container', () => {
                 expect(fn()).toBe('testFunction2');
             });
         });
+        describe('should return factory result', () => {
+            it('registered with its original name', () => {
+                var res = container.resolve('testFactory');
+                expect(res).toBe('testFactory');
+            });
+            it('registered with custom name', () => {
+                var res = container.resolve('testFactory2');
+                expect(res).toBe('<dependency3>');
+            });
+            it('registered as anonymous function', () => {
+                var res = container.resolve('dependency3');
+                expect(res).toBe('dependency3');
+            });
+        });
+        it('should throw error if key not found', () => {
+            expect(() => container.resolve('NotExistingKey')).toThrow();
+        });
     });
     it('should register itself with "container" key', () => {
         expect(container.isRegistered('container')).toBeTruthy();
@@ -373,4 +447,12 @@ function testFunction() {
 
 function testFunction2() {
     return 'testFunction2';
+}
+
+function testFactory() {
+    return 'testFactory';
+}
+
+function testFactory2(dependency3) {
+    return '<' + dependency3 + '>';
 }

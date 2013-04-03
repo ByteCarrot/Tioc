@@ -93,6 +93,27 @@ var ByteCarrot;
                 }
                 return this.registry[key];
             };
+            Container.prototype.collectDependencies = function (item) {
+                var deps = [];
+                for(var i in item.dependencies) {
+                    deps.push(this.resolve(item.dependencies[i]));
+                }
+                return deps;
+            };
+            Container.prototype.registerFunctionInternal = function (type, args) {
+                if(args.length === 1 && Value.isFunction(args[0])) {
+                    var info = this.reflector.analyze(args[0]);
+                    if(info.name === null) {
+                        throw new Error('Anonymous function can be only registered with key provided');
+                    }
+                    this.set(info.name, type, args[0], info.members);
+                } else if(args.length === 2 && Value.isNotEmptyString(args[0]) && Value.isFunction(args[1])) {
+                    var info = this.reflector.analyze(args[1]);
+                    this.set(args[0], type, args[1], info.members);
+                } else {
+                    throw new Error('Invalid arguments');
+                }
+            };
             Container.prototype.registerClass = function () {
                 var args = [];
                 for (var _i = 0; _i < (arguments.length - 0); _i++) {
@@ -119,18 +140,14 @@ var ByteCarrot;
                 for (var _i = 0; _i < (arguments.length - 0); _i++) {
                     args[_i] = arguments[_i + 0];
                 }
-                if(args.length === 1 && Value.isFunction(args[0])) {
-                    var info = this.reflector.analyze(args[0]);
-                    if(info.name === null) {
-                        throw new Error('Anonymous function can be only registered with key provided');
-                    }
-                    this.set(info.name, 'function', args[0], []);
-                } else if(args.length === 2 && Value.isNotEmptyString(args[0]) && Value.isFunction(args[1])) {
-                    var info = this.reflector.analyze(args[1]);
-                    this.set(args[0], 'function', args[1], []);
-                } else {
-                    throw new Error('Invalid arguments');
+                this.registerFunctionInternal('function', args);
+            };
+            Container.prototype.registerFactory = function () {
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                    args[_i] = arguments[_i + 0];
                 }
+                this.registerFunctionInternal('factory', args);
             };
             Container.prototype.registerValue = function (key, value) {
                 if(!Value.isNotEmptyString(key)) {
@@ -150,11 +167,10 @@ var ByteCarrot;
             Container.prototype.resolve = function (key) {
                 var item = this.get(key);
                 if(item.type === 'class') {
-                    var args = [];
-                    for(var i in item.dependencies) {
-                        args.push(this.resolve(item.dependencies[i]));
-                    }
-                    return this.activator.createInstance(item.value, args);
+                    return this.activator.createInstance(item.value, this.collectDependencies(item));
+                }
+                if(item.type === 'factory') {
+                    return item.value.apply(null, this.collectDependencies(item));
                 }
                 return this.get(key).value;
             };
