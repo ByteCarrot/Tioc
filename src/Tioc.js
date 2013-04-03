@@ -60,97 +60,86 @@ var ByteCarrot;
             return Activator;
         })();
         Tioc.Activator = Activator;        
+        var RegistryItem = (function () {
+            function RegistryItem(key, type, value) {
+                this.key = key;
+                this.type = type;
+                this.value = value;
+            }
+            return RegistryItem;
+        })();        
         var Container = (function () {
             function Container() {
+                this.activator = new Activator();
                 this.reflector = new Reflector();
                 this.registry = {
                 };
             }
-            Container.prototype.RegisterClass = function () {
-                var args = [];
-                for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                    args[_i] = arguments[_i + 0];
-                }
-                if(args.length === 1) {
-                }
-            };
-            Container.prototype.Register = function () {
-                var args = [];
-                for (var _i = 0; _i < (arguments.length - 0); _i++) {
-                    args[_i] = arguments[_i + 0];
-                }
-                if(args.length === 0) {
-                    throw new Error('Arguments required.');
-                }
-                if(args.length > 2) {
-                    throw new Error('To many arguments.');
-                }
-                if(args.length === 1) {
-                    this.Register1(args[0]);
-                }
-                if(args.length === 2) {
-                    this.Register2(args[0], args[1]);
-                }
-            };
-            Container.prototype.Register1 = function (fn) {
-                if(!Value.isFunction(fn)) {
-                    throw new Error('Argument should be a function');
-                }
-                var info = this.reflector.analyze(fn);
-                if(info.name === null) {
-                    throw new Error('Argument cannot be an anonymous function');
-                }
-                if(this.IsRegistered(info.name)) {
-                    throw new Error('Function already registered');
-                }
-                this.registry[info.name] = fn;
-            };
-            Container.prototype.Register2 = function (key, fn) {
-                if(!Value.isNotEmptyString(key)) {
-                    throw new Error('First argument should be a string');
-                }
-                key = key.trim();
+            Container.prototype.set = function (key, type, value) {
                 if(!Value.isIdentifier(key)) {
-                    throw new Error('Key is not a valid identifier');
+                    throw new Error(key + ' is not a valid JavaScript identifier');
                 }
-                if(!Value.isFunction(fn)) {
-                    throw new Error('Second argument should be a function');
+                if(this.registry[key] !== undefined && this.registry[key] !== null) {
+                    throw new Error(key + ' already registered');
                 }
-                var info = this.reflector.analyze(fn);
-                if(info.name === null && this.isClass(key)) {
-                    throw new Error('Anonymous function cannot be register as a class');
-                }
-                if(this.IsRegistered(key)) {
-                    throw new Error('Function already registered');
-                }
-                this.registry[key] = fn;
+                this.registry[key] = new RegistryItem(key, type, value);
             };
-            Container.prototype.IsRegistered = function (fn) {
-                if(fn === undefined || fn === null) {
-                    throw new Error('Argument cannot be null or undefined');
+            Container.prototype.get = function (key) {
+                if(this.registry[key] === undefined || this.registry[key] === null) {
+                    throw new Error(key + ' not found');
                 }
-                var key = '';
-                if(typeof fn === 'string') {
-                    key = fn.trim();
-                    if(key === '') {
-                        throw new Error('Argument cannot be an empty string');
-                    }
-                } else if(typeof fn === 'function') {
-                    var info = this.reflector.analyze(fn);
+                return this.registry[key];
+            };
+            Container.prototype.registerClass = function () {
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                    args[_i] = arguments[_i + 0];
+                }
+                if(args.length === 1 && Value.isFunction(args[0])) {
+                    var info = this.reflector.analyze(args[0]);
                     if(info.name === null) {
-                        throw new Error('Argument cannot be an anonymous function');
+                        throw new Error('Anonymous function cannot be a class constructor');
                     }
-                    key = info.name;
+                    this.set(info.name, 'class', args[0]);
+                } else if(args.length === 2 && Value.isNotEmptyString(args[0]) && Value.isFunction(args[1])) {
+                    var info = this.reflector.analyze(args[1]);
+                    if(info.name === null) {
+                        throw new Error('Anonymous function cannot be a class constructor');
+                    }
+                    this.set(args[0], 'class', args[1]);
                 } else {
-                    throw new Error('Argument is not a function nor string');
+                    throw new Error('Invalid arguments');
+                }
+            };
+            Container.prototype.registerFunction = function () {
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                    args[_i] = arguments[_i + 0];
+                }
+                if(args.length === 1 && Value.isFunction(args[0])) {
+                    var info = this.reflector.analyze(args[0]);
+                    if(info.name === null) {
+                        throw new Error('Anonymous function can be only registered with key provided');
+                    }
+                    this.set(info.name, 'function', args[0]);
+                } else if(args.length === 2 && Value.isNotEmptyString(args[0]) && Value.isFunction(args[1])) {
+                    this.set(args[0], 'function', args[1]);
+                } else {
+                    throw new Error('Invalid arguments');
+                }
+            };
+            Container.prototype.isRegistered = function (key) {
+                if(!Value.isNotEmptyString(key) || !Value.isIdentifier(key)) {
+                    throw new Error('Argument cannot be null or undefined');
                 }
                 return this.registry[key] !== undefined && this.registry[key] !== null;
             };
-            Container.prototype.Resolve = function (key) {
-                if(this.isClass(key)) {
-                    return new this.registry[key]();
+            Container.prototype.resolve = function (key) {
+                var item = this.get(key);
+                if(item.type === 'class') {
+                    return this.activator.createInstance(item.value, []);
                 }
-                return this.registry[key];
+                return this.get(key).value;
             };
             Container.prototype.isClass = function (key) {
                 return key[0] === key[0].toUpperCase();
