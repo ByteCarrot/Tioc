@@ -66,6 +66,14 @@ var ByteCarrot;
                 this.registry = {
                 };
             }
+            Container.prototype.RegisterClass = function () {
+                var args = [];
+                for (var _i = 0; _i < (arguments.length - 0); _i++) {
+                    args[_i] = arguments[_i + 0];
+                }
+                if(args.length === 1) {
+                }
+            };
             Container.prototype.Register = function () {
                 var args = [];
                 for (var _i = 0; _i < (arguments.length - 0); _i++) {

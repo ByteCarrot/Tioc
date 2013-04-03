@@ -172,6 +172,34 @@ describe('Container', () => {
         });
     });
 
+    describe('RegisterClass method invoked with one argument', () => {
+        it('should throw error if argument is not a valid class definition', () => {
+            expect(() => container.RegisterClass(undefined)).toThrow();
+            expect(() => container.RegisterClass(null)).toThrow();
+            expect(() => container.RegisterClass(function(arg) {})).toThrow();
+            expect(() => container.RegisterClass('')).toThrow();
+            expect(() => container.RegisterClass({})).toThrow();
+        });
+        it('should register the class using its original name', () => {
+            container.RegisterClass(TestClass);
+            expect(container.IsRegistered('TestClass')).toBeTruthy();
+        });
+    });
+
+    describe('RegisterClass method invoked with two arguments', () => {
+        it('should throw error if key is not a string', () => {
+            expect(() => container.RegisterClass(undefined, TestClass)).toThrow();
+            expect(() => container.RegisterClass(null)).toThrow();
+            expect(() => container.RegisterClass('')).toThrow();
+            expect(() => container.RegisterClass({})).toThrow();
+            expect(() => container.RegisterClass('      ')).toThrow();
+        });
+        it('should register the class using specified key', () => {
+            container.RegisterClass('someKey', TestClass);
+            expect(container.isRegistered('someKey')).toBeTruthy();
+        })
+    });
+
     describe('Register', () => {
         it('should provide possibility to register class', () => {
             container.Register(TestClass);

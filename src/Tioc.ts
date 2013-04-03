@@ -54,6 +54,12 @@ module ByteCarrot.Tioc {
     export class Container {
         private reflector:Reflector = new Reflector();
         private registry:{} = {};
+
+        public RegisterClass(...args:any[]):void {
+            if (args.length === 1) {
+                
+            }
+        }
         public Register(...args:any[]):void {
             if (args.length === 0) {
                 throw new Error('Arguments required.');

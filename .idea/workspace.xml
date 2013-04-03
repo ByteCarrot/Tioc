@@ -20,8 +20,8 @@
     <file path="/Tools.ts" changelist="180c0cb4-4481-4046-8159-61a1185af6f1" time="1364768224129" ignored="false" />
     <file path="$PROJECT_DIR$/src/Tools.js" changelist="180c0cb4-4481-4046-8159-61a1185af6f1" time="1364768257831" ignored="false" />
     <file path="/ToolsSpec.ts" changelist="180c0cb4-4481-4046-8159-61a1185af6f1" time="1364768143484" ignored="false" />
-    <file path="/Tioc.ts" changelist="180c0cb4-4481-4046-8159-61a1185af6f1" time="1364976571199" ignored="false" />
-    <file path="/TiocSpec.ts" changelist="180c0cb4-4481-4046-8159-61a1185af6f1" time="1364976752084" ignored="false" />
+    <file path="/Tioc.ts" changelist="180c0cb4-4481-4046-8159-61a1185af6f1" time="1364978434911" ignored="false" />
+    <file path="/TiocSpec.ts" changelist="180c0cb4-4481-4046-8159-61a1185af6f1" time="1364977783972" ignored="false" />
     <file path="/a.dummy" changelist="180c0cb4-4481-4046-8159-61a1185af6f1" time="1364975198615" ignored="false" />
     <file path="$PROJECT_DIR$/src/Tioc.js" changelist="180c0cb4-4481-4046-8159-61a1185af6f1" time="1364976167750" ignored="false" />
     <file path="$PROJECT_DIR$/test/TiocSpec.js.map" changelist="180c0cb4-4481-4046-8159-61a1185af6f1" time="1364976852103" ignored="false" />
@@ -44,19 +44,19 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Tioc.ts" pinned="false" current="false" current-in-tab="false">
+      <file leaf-file-name="Tioc.ts" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/Tioc.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="91" column="23" selection-start="3218" selection-end="3218" vertical-scroll-proportion="0.0">
+            <state line="63" column="36" selection-start="2087" selection-end="2087" vertical-scroll-proportion="0.74015206">
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="TiocSpec.ts" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="TiocSpec.ts" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/TiocSpec.ts">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="33" column="63" selection-start="1538" selection-end="1538" vertical-scroll-proportion="0.3717694">
+            <state line="198" column="67" selection-start="8660" selection-end="8660" vertical-scroll-proportion="0.0">
               <folding>
                 <element signature="n#!!doc" expanded="true" />
               </folding>
@@ -67,12 +67,13 @@
       <file leaf-file-name="TiocSpec.js" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/test/TiocSpec.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state line="339" column="5" selection-start="13886" selection-end="13886" vertical-scroll-proportion="0.0">
+            <state line="400" column="0" selection-start="16122" selection-end="16122" vertical-scroll-proportion="0.0">
               <folding>
-                <marker date="1364976855435" expanded="true" signature="2049:2583" placeholder="{...}" />
-                <marker date="1364976855435" expanded="true" signature="2079:2232" placeholder="{...}" />
-                <marker date="1364976855435" expanded="true" signature="2322:2466" placeholder="[...]" />
-                <marker date="1364976855435" expanded="true" signature="2670:2715" placeholder="{...}" />
+                <marker date="1364977787678" expanded="true" signature="2049:2583" placeholder="{...}" />
+                <marker date="1364977787678" expanded="true" signature="2079:2232" placeholder="{...}" />
+                <marker date="1364977787678" expanded="true" signature="2322:2466" placeholder="[...]" />
+                <marker date="1364977787678" expanded="true" signature="2670:2715" placeholder="{...}" />
+                <marker date="1364977787678" expanded="true" signature="9892:16086" placeholder="{...}" />
               </folding>
             </state>
           </provider>
@@ -110,15 +111,17 @@
         <option value="$PROJECT_DIR$/testacular.conf.js" />
         <option value="$PROJECT_DIR$/src/Tools.ts" />
         <option value="$PROJECT_DIR$/test/ToolsSpec.ts" />
-        <option value="$PROJECT_DIR$/src/Tioc.ts" />
         <option value="$PROJECT_DIR$/test/TiocSpec.ts" />
+        <option value="$PROJECT_DIR$/src/Tioc.ts" />
       </list>
     </option>
   </component>
   <component name="PhpWorkspaceProjectConfiguration" backward_compatibility_performed="true" />
   <component name="ProjectFrameBounds">
-    <option name="width" value="2560" />
-    <option name="height" value="1600" />
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
+    <option name="width" value="2576" />
+    <option name="height" value="1576" />
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">
     <entry key="Project Default">
@@ -236,7 +239,7 @@
     <property name="options.lastSelected" value="settings" />
     <property name="last_opened_file_path" value="C:/Program Files (x86)/Git/bin/git.exe" />
     <property name="restartRequiresConfirmation" value="true" />
-    <property name="FullScreen" value="true" />
+    <property name="FullScreen" value="false" />
     <property name="GoToClass.includeJavaFiles" value="false" />
     <property name="options.splitter.details.proportions" value="0.2" />
     <property name="options.searchVisible" value="true" />
@@ -290,13 +293,13 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="2560" height="1600" extended-state="6" />
+    <frame x="-8" y="-8" width="2576" height="1576" extended-state="6" />
     <editor active="true" />
     <layout>
       <window_info id="Changes" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32833877" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.28281623" sideWeight="0.67166126" order="2" side_tool="false" content_ui="tabs" x="-3" y="1" width="1369" height="723" />
+      <window_info id="Debug" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.28281623" sideWeight="0.67166126" order="2" side_tool="false" content_ui="tabs" x="-3" y="1" width="1369" height="723" />
       <window_info id="Mongo Runner" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32833877" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32954547" sideWeight="0.78602" order="0" side_tool="false" content_ui="tabs" />
@@ -445,31 +448,32 @@
         <state line="17" column="0" selection-start="363" selection-end="363" vertical-scroll-proportion="0.42437592" />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/Tioc.ts">
-      <provider selected="true" editor-type-id="text-editor">
-        <state line="91" column="23" selection-start="3218" selection-end="3218" vertical-scroll-proportion="0.0">
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/test/TiocSpec.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="339" column="5" selection-start="13886" selection-end="13886" vertical-scroll-proportion="0.0">
+        <state line="400" column="0" selection-start="16122" selection-end="16122" vertical-scroll-proportion="0.0">
           <folding>
-            <marker date="1364976855435" expanded="true" signature="2049:2583" placeholder="{...}" />
-            <marker date="1364976855435" expanded="true" signature="2079:2232" placeholder="{...}" />
-            <marker date="1364976855435" expanded="true" signature="2322:2466" placeholder="[...]" />
-            <marker date="1364976855435" expanded="true" signature="2670:2715" placeholder="{...}" />
+            <marker date="1364977787678" expanded="true" signature="2049:2583" placeholder="{...}" />
+            <marker date="1364977787678" expanded="true" signature="2079:2232" placeholder="{...}" />
+            <marker date="1364977787678" expanded="true" signature="2322:2466" placeholder="[...]" />
+            <marker date="1364977787678" expanded="true" signature="2670:2715" placeholder="{...}" />
+            <marker date="1364977787678" expanded="true" signature="9892:16086" placeholder="{...}" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/test/TiocSpec.ts">
       <provider selected="true" editor-type-id="text-editor">
-        <state line="33" column="63" selection-start="1538" selection-end="1538" vertical-scroll-proportion="0.3717694">
+        <state line="198" column="67" selection-start="8660" selection-end="8660" vertical-scroll-proportion="0.0">
           <folding>
             <element signature="n#!!doc" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/Tioc.ts">
+      <provider selected="true" editor-type-id="text-editor">
+        <state line="63" column="36" selection-start="2087" selection-end="2087" vertical-scroll-proportion="0.74015206">
+          <folding />
         </state>
       </provider>
     </entry>

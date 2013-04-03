@@ -190,6 +190,55 @@ describe('Container', function () {
             }).toThrow();
         });
     });
+    describe('RegisterClass method invoked with one argument', function () {
+        it('should throw error if argument is not a valid class definition', function () {
+            expect(function () {
+                return container.RegisterClass(undefined);
+            }).toThrow();
+            expect(function () {
+                return container.RegisterClass(null);
+            }).toThrow();
+            expect(function () {
+                return container.RegisterClass(function (arg) {
+                });
+            }).toThrow();
+            expect(function () {
+                return container.RegisterClass('');
+            }).toThrow();
+            expect(function () {
+                return container.RegisterClass({
+                });
+            }).toThrow();
+        });
+        it('should register the class using its original name', function () {
+            container.RegisterClass(TestClass);
+            expect(container.IsRegistered('TestClass')).toBeTruthy();
+        });
+    });
+    describe('RegisterClass method invoked with two arguments', function () {
+        it('should throw error if key is not a string', function () {
+            expect(function () {
+                return container.RegisterClass(undefined, TestClass);
+            }).toThrow();
+            expect(function () {
+                return container.RegisterClass(null);
+            }).toThrow();
+            expect(function () {
+                return container.RegisterClass('');
+            }).toThrow();
+            expect(function () {
+                return container.RegisterClass({
+                });
+            }).toThrow();
+            expect(function () {
+                return container.RegisterClass('      ');
+            }).toThrow();
+        });
+        it('should register the class using specified key', function () {
+            container.RegisterClass('someKey', TestClass);
+            expect(container.isRegistered('someKey')).toBeTruthy();
+        });
+    });
     describe('Register', function () {
         it('should provide possibility to register class', function () {
             container.Register(TestClass);
