@@ -1,15 +1,32 @@
-/// <reference path="Tools.ts" />
-
 module ByteCarrot.Tioc {
+    export class Value {
+        public static isString(value:any):bool {
+            return value !== undefined && value !== null && typeof value === 'string';
+        }
+        public static isNotEmptyString(value:any):bool {
+            return Value.isString(value) && value.trim().length > 0;
+        }
+        public static isFunction(value:any):bool {
+            return value !== undefined && value !== null && typeof value === 'function';
+        }
+        public static isIdentifier(value:string):bool {
+            if (!Value.isNotEmptyString(value)) {
+                return false;
+            }
+            var regex = /^[$A-Z_][0-9A-Z_$]*$/i;
+            return regex.test(value);
+        }
+    }
+
     export class ReflectionInfo {
         public name:string;
         public kind:string;
-        public args:string[] = [];
+        public members:string[] = [];
     }
 
     export class Reflector {
         public analyze(fn:any):ReflectionInfo {
-            if (!_.isFunction(fn)) {
+            if (!Value.isFunction(fn)) {
                 throw new Error('Function expected');
             }
             var result = new ReflectionInfo();
@@ -18,7 +35,7 @@ module ByteCarrot.Tioc {
             var source = fn.toString();
             var args:string[] = source.match(/\(.*?\)/)[0].replace(/[()]/gi,'').replace(/\s/gi,'').split(',');
             if (args.length !== 1 || args[0] !== '') {
-                result.args = args;
+                result.members = args;
             }
             return result;
         }
@@ -52,7 +69,7 @@ module ByteCarrot.Tioc {
             }
         }
         private Register1(fn:any):void {
-            if (!_.isFunction(fn)) {
+            if (!Value.isFunction(fn)) {
                 throw new Error('Argument should be a function');
             }
             var info = this.reflector.analyze(fn);
@@ -65,14 +82,14 @@ module ByteCarrot.Tioc {
             this.registry[info.name] = fn;
         }
         private Register2(key:string, fn:any):void {
-            if (!_.isNotEmptyString(key)) {
+            if (!Value.isNotEmptyString(key)) {
                 throw new Error('First argument should be a string');
             }
             key = key.trim();
-            if (!_.isIdentifier(key)) {
+            if (!Value.isIdentifier(key)) {
                 throw new Error('Key is not a valid identifier');
             }
-            if (!_.isFunction(fn)) {
+            if (!Value.isFunction(fn)) {
                 throw new Error('Second argument should be a function');
             }
             var info = this.reflector.analyze(fn);

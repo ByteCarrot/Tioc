@@ -1,19 +1,63 @@
 /// <reference path="jasmine.d.ts" />
 /// <reference path="../src/Tioc.ts" />
 
-class TestClass {
-    value:string = 'TestClass';
-    someString:string;
-    someNumber:number;
-    static $inject = ['SomeStringService','SomeNumberService'];
-    constructor (someString:string, someNumber:number) {
-        this.someString = someString;
-        this.someNumber = someNumber;
-    }
-}
+describe('Value', () => {
+    var Value = ByteCarrot.Tioc.Value;
+    describe('isString', () => {
+        it('should return true if value is a string', () => {
+            expect(Value.isString('')).toBeTruthy();
+            expect(Value.isString('    ')).toBeTruthy();
+            expect(Value.isString('lkasjd laskdj')).toBeTruthy();
+        });
+        it('should return false if value is not a string', () => {
+            expect(Value.isString(undefined)).toBeFalsy();
+            expect(Value.isString(null)).toBeFalsy();
+            expect(Value.isString({})).toBeFalsy();
+            expect(Value.isString([])).toBeFalsy();
+        });
+    });
+    describe('isNotEmptyString', () => {
+        it('should return true if value is not an empty string', () => {
+            expect(Value.isNotEmptyString('d')).toBeTruthy();
+            expect(Value.isNotEmptyString(' asdas    ')).toBeTruthy();
+        });
+        it('should return false if value is not a string nor empty string', () => {
+            expect(Value.isNotEmptyString(undefined)).toBeFalsy();
+            expect(Value.isNotEmptyString(null)).toBeFalsy();
+            expect(Value.isNotEmptyString({})).toBeFalsy();
+            expect(Value.isNotEmptyString('   ')).toBeFalsy();
+            expect(Value.isNotEmptyString('')).toBeFalsy();
+        });
+    });
+    describe('isFunction', () => {
+        function testFunction(){}
+        it('should return true if value is a function', () => {
+            expect(Value.isFunction(function(){})).toBeTruthy();
+            expect(Value.isFunction(testFunction)).toBeTruthy();
+        });
+        it('should return false if value is not a function', () => {
+            expect(Value.isFunction(undefined)).toBeFalsy();
+            expect(Value.isFunction(null)).toBeFalsy();
+            expect(Value.isFunction('')).toBeFalsy();
+            expect(Value.isFunction({})).toBeFalsy();
+        });
+    });
+    describe('isIdentifier', () => {
+        it('should return true if value is a valid identifier', () => {
+            expect(Value.isIdentifier('AlaMaKota')).toBeTruthy();
+            expect(Value.isIdentifier('alaMaKota33_33')).toBeTruthy();
+            expect(Value.isIdentifier('_alaMa_KOTA')).toBeTruthy();
+        });
+        it('should return false if value is not a valid identifier', () => {
+            expect(Value.isIdentifier(undefined)).toBeFalsy();
+            expect(Value.isIdentifier(null)).toBeFalsy();
+            expect(Value.isIdentifier('  ')).toBeFalsy();
+            expect(Value.isIdentifier('3alaMaKota'));
+        });
+    });
+});
 
-class OtherClass {
-}
+
 
 describe('Reflector', function () {
     var reflector:ByteCarrot.Tioc.Reflector;
@@ -27,16 +71,16 @@ describe('Reflector', function () {
             var info = reflector.analyze(fn);
             expect(info.name).toBe(null);
             expect(info.kind).toBe('function');
-            expect(info.args.length).toBe(2);
-            expect(info.args[0]).toBe('arg1');
-            expect(info.args[1]).toBe('arg2');
+            expect(info.members.length).toBe(2);
+            expect(info.members[0]).toBe('arg1');
+            expect(info.members[1]).toBe('arg2');
         });
         it('should be able to analyze anonymous function without arguments', () => {
             var fn = function() {};
             var info = reflector.analyze(fn);
             expect(info.name).toBe(null);
             expect(info.kind).toBe('function');
-            expect(info.args.length).toBe(0);
+            expect(info.members.length).toBe(0);
         });
         it('should be able to analyze standard JavaScript function', () => {
             function SomeTestFunction(argx, argy) {
@@ -44,17 +88,17 @@ describe('Reflector', function () {
             var info = reflector.analyze(SomeTestFunction);
             expect(info.name).toBe('SomeTestFunction');
             expect(info.kind).toBe('function');
-            expect(info.args.length).toBe(2);
-            expect(info.args[0]).toBe('argx');
-            expect(info.args[1]).toBe('argy');
+            expect(info.members.length).toBe(2);
+            expect(info.members[0]).toBe('argx');
+            expect(info.members[1]).toBe('argy');
         });
         it('should be able to analyze class constructor', () => {
             var info = reflector.analyze(TestClass);
             expect(info.name).toBe('TestClass');
             expect(info.kind).toBe('function');
-            expect(info.args.length).toBe(2);
-            expect(info.args[0]).toBe('someString');
-            expect(info.args[1]).toBe('someNumber');
+            expect(info.members.length).toBe(2);
+            expect(info.members[0]).toBe('someString');
+            expect(info.members[1]).toBe('someNumber');
         });
         it('should throw error when argument is not a function', () => {
             expect(() => reflector.analyze('')).toThrow();
@@ -157,7 +201,7 @@ describe('Container', () => {
             expect(() => container.Register(undefined)).toThrow();
         });
         it('should throw error if function is anonymous', () => {
-            expect(() => container.Register(function(arg) {}).toThrow());
+            expect(() => container.Register(function(arg) {})).toThrow();
         });
         it('should throw error if first argument is null', () => {
             expect(() => container.Register(null, function(arg) {})).toThrow();
@@ -223,3 +267,17 @@ describe('Container', () => {
         });
     });
 });
+
+class TestClass {
+    value:string = 'TestClass';
+    someString:string;
+    someNumber:number;
+    static $inject = ['SomeStringService','SomeNumberService'];
+    constructor (someString:string, someNumber:number) {
+        this.someString = someString;
+        this.someNumber = someNumber;
+    }
+}
+
+class OtherClass {
+}

@@ -1,9 +1,30 @@
 var ByteCarrot;
 (function (ByteCarrot) {
     (function (Tioc) {
+        var Value = (function () {
+            function Value() { }
+            Value.isString = function isString(value) {
+                return value !== undefined && value !== null && typeof value === 'string';
+            };
+            Value.isNotEmptyString = function isNotEmptyString(value) {
+                return Value.isString(value) && value.trim().length > 0;
+            };
+            Value.isFunction = function isFunction(value) {
+                return value !== undefined && value !== null && typeof value === 'function';
+            };
+            Value.isIdentifier = function isIdentifier(value) {
+                if(!Value.isNotEmptyString(value)) {
+                    return false;
+                }
+                var regex = /^[$A-Z_][0-9A-Z_$]*$/i;
+                return regex.test(value);
+            };
+            return Value;
+        })();
+        Tioc.Value = Value;        
         var ReflectionInfo = (function () {
             function ReflectionInfo() {
-                this.args = [];
+                this.members = [];
             }
             return ReflectionInfo;
         })();
@@ -11,7 +32,7 @@ var ByteCarrot;
         var Reflector = (function () {
             function Reflector() { }
             Reflector.prototype.analyze = function (fn) {
-                if(!_.isFunction(fn)) {
+                if(!Value.isFunction(fn)) {
                     throw new Error('Function expected');
                 }
                 var result = new ReflectionInfo();
@@ -20,7 +41,7 @@ var ByteCarrot;
                 var source = fn.toString();
                 var args = source.match(/\(.*?\)/)[0].replace(/[()]/gi, '').replace(/\s/gi, '').split(',');
                 if(args.length !== 1 || args[0] !== '') {
-                    result.args = args;
+                    result.members = args;
                 }
                 return result;
             };
@@ -64,7 +85,7 @@ var ByteCarrot;
                 }
             };
             Container.prototype.Register1 = function (fn) {
-                if(!_.isFunction(fn)) {
+                if(!Value.isFunction(fn)) {
                     throw new Error('Argument should be a function');
                 }
                 var info = this.reflector.analyze(fn);
@@ -77,14 +98,14 @@ var ByteCarrot;
                 this.registry[info.name] = fn;
             };
             Container.prototype.Register2 = function (key, fn) {
-                if(!_.isNotEmptyString(key)) {
+                if(!Value.isNotEmptyString(key)) {
                     throw new Error('First argument should be a string');
                 }
                 key = key.trim();
-                if(!_.isIdentifier(key)) {
+                if(!Value.isIdentifier(key)) {
                     throw new Error('Key is not a valid identifier');
                 }
-                if(!_.isFunction(fn)) {
+                if(!Value.isFunction(fn)) {
                     throw new Error('Second argument should be a function');
                 }
                 var info = this.reflector.analyze(fn);
