@@ -55,10 +55,12 @@ module ByteCarrot.Tioc {
         public key:string;
         public type:string;
         public value:any;
-        constructor(key:string, type:string, value:any) {
+        public dependencies:string[];
+        constructor(key:string, type:string, value:any, deps:string[]) {
             this.key = key;
             this.type = type;
             this.value = value;
+            this.dependencies = deps;
         }
     }
 
@@ -66,14 +68,17 @@ module ByteCarrot.Tioc {
         private activator:Activator = new Activator();
         private reflector:Reflector = new Reflector();
         private registry:{} = {};
-        private set(key:string, type:string, value:any):void {
+        constructor() {
+            this.registerValue('container', this);
+        }
+        private set(key:string, type:string, value:any, deps:string[] = []):void {
             if (!Value.isIdentifier(key)) {
                 throw new Error(key + ' is not a valid JavaScript identifier');
             }
             if (this.registry[key] !== undefined && this.registry[key] !== null) {
                 throw new Error(key + ' already registered');
             }
-            this.registry[key] = new RegistryItem(key, type, value);
+            this.registry[key] = new RegistryItem(key, type, value, deps);
         }
         private get(key:string):RegistryItem {
             if (this.registry[key] === undefined || this.registry[key] === null) {
@@ -87,13 +92,13 @@ module ByteCarrot.Tioc {
                 if (info.name === null) {
                     throw new Error('Anonymous function cannot be a class constructor');
                 }
-                this.set(info.name, 'class', args[0]);
+                this.set(info.name, 'class', args[0], info.members);
             } else if (args.length === 2 && Value.isNotEmptyString(args[0]) && Value.isFunction(args[1])) {
                 var info = this.reflector.analyze(args[1]);
                 if (info.name === null) {
                     throw new Error('Anonymous function cannot be a class constructor');
                 }
-                this.set(args[0], 'class', args[1]);
+                this.set(args[0], 'class', args[1], info.members);
             } else {
                 throw new Error('Invalid arguments');
             }
@@ -104,12 +109,22 @@ module ByteCarrot.Tioc {
                 if (info.name === null) {
                     throw new Error('Anonymous function can be only registered with key provided');
                 }
-                this.set(info.name, 'function', args[0]);
+                this.set(info.name, 'function', args[0], []);
             } else if (args.length === 2 && Value.isNotEmptyString(args[0]) && Value.isFunction(args[1])) {
-                this.set(args[0], 'function', args[1]);
+                var info = this.reflector.analyze(args[1]);
+                this.set(args[0], 'function', args[1], []);
             } else {
                 throw new Error('Invalid arguments');
             }
+        }
+        public registerValue(key:any, value:any):void {
+            if (!Value.isNotEmptyString(key)) {
+                throw new Error('Invalid key');
+            }
+            if (value === undefined) {
+                throw new Error('Value is undefined');
+            }
+            this.set(key, 'value', value, []);
         }
         public isRegistered(key:any):bool {
             if (!Value.isNotEmptyString(key) || !Value.isIdentifier(key)) {
@@ -119,13 +134,15 @@ module ByteCarrot.Tioc {
         }
         public resolve(key:string):any {
             var item = this.get(key);
+
             if (item.type === 'class') {
-                return this.activator.createInstance(item.value, []);
+                var args = [];
+                for (var i in item.dependencies) {
+                    args.push(this.resolve(item.dependencies[i]));
+                }
+                return this.activator.createInstance(item.value, args);
             }
             return this.get(key).value;
-        }
-        private isClass(key:string):bool {
-            return key[0] === key[0].toUpperCase();
         }
     }
 }

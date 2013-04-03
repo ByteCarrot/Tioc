@@ -30,9 +30,7 @@ describe('Value', () => {
         });
     });
     describe('isFunction', () => {
-        function testFunction() {
-        }
-
+        function testFunction() {}
         it('should return true if value is a function', () => {
             expect(Value.isFunction(function () {
             })).toBeTruthy();
@@ -60,13 +58,11 @@ describe('Value', () => {
     });
 });
 
-
 describe('Reflector', function () {
     var reflector:ByteCarrot.Tioc.Reflector;
     beforeEach(() => {
         reflector = new ByteCarrot.Tioc.Reflector();
     });
-
     describe('analyze', () => {
         it('should be able to analyze anonymous function', () => {
             var fn = function (arg1, arg2) {
@@ -102,8 +98,8 @@ describe('Reflector', function () {
             expect(info.name).toBe('TestClass');
             expect(info.kind).toBe('function');
             expect(info.members.length).toBe(2);
-            expect(info.members[0]).toBe('someString');
-            expect(info.members[1]).toBe('someNumber');
+            expect(info.members[0]).toBe('dependency1');
+            expect(info.members[1]).toBe('dependency2');
         });
         it('should throw error when argument is not a function', () => {
             expect(() => reflector.analyze('')).toThrow();
@@ -119,16 +115,13 @@ describe('Activator', () => {
     beforeEach(() => {
         activator = new ByteCarrot.Tioc.Activator();
     });
-
     describe('createInstance', () => {
         function Test() {
             this.value = 'Test class';
         }
-
         function Test2(value:string) {
             this.value = value;
         }
-
         it('should create instance using parameterless constructor', () => {
             var obj = activator.createInstance(Test, []);
             expect(typeof obj).toBe('object');
@@ -147,7 +140,6 @@ describe('Container', () => {
     beforeEach(() => {
         container = new ByteCarrot.Tioc.Container();
     });
-
     describe('isRegistered', () => {
         beforeEach(() => {
             container.registerClass(TestClass);
@@ -155,7 +147,6 @@ describe('Container', () => {
             container.registerFunction(testFunction);
             container.registerFunction('testFunction2', testFunction);
         });
-
         it('should return true if specified class is registered', () => {
             expect(container.isRegistered('TestClass')).toBeTruthy();
         });
@@ -183,7 +174,6 @@ describe('Container', () => {
             expect(() => container.isRegistered('   ')).toThrow();
         });
     });
-
     describe('registerClass method', () => {
         describe('invoked with one argument', () => {
             it('should throw error if argument is not a valid class definition', () => {
@@ -199,12 +189,11 @@ describe('Container', () => {
                 container.registerClass(TestClass);
                 expect(() => container.registerClass(TestClass)).toThrow();
             });
-            it('should register the class using its original name', () => {
+            it('should register class using its original name', () => {
                 container.registerClass(TestClass);
                 expect(container.isRegistered('TestClass')).toBeTruthy();
             });
         });
-
         describe('invoked with two arguments', () => {
             it('should throw error if key is not a string', () => {
                 expect(() => container.registerClass(undefined, TestClass)).toThrow();
@@ -229,12 +218,11 @@ describe('Container', () => {
                 container.registerClass('someKey', TestClass);
                 expect(() => container.registerClass('someKey', TestClass)).toThrow();
             });
-            it('should register the class using specified key', () => {
+            it('should register class using specified key', () => {
                 container.registerClass('someKey', TestClass);
                 expect(container.isRegistered('someKey')).toBeTruthy();
             });
         });
-
         describe('invoked with invalid count of arguments', () => {
             it('should throw error', () => {
                 expect(() => container.registerClass()).toThrow();
@@ -242,7 +230,6 @@ describe('Container', () => {
             });
         });
     });
-
     describe('registerFunction method', () => {
         describe('invoked with one argument', () => {
             it('should throw error if argument is not a valid function', () => {
@@ -261,14 +248,13 @@ describe('Container', () => {
                 container.registerFunction(someFunction);
                 expect(() => container.registerFunction(someFunction)).toThrow();
             });
-            it('should register the function using its original name', () => {
+            it('should register function using its original name', () => {
                 function someFunction() {
                 };
                 container.registerFunction(someFunction);
                 expect(container.isRegistered('someFunction')).toBeTruthy();
             });
         });
-
         describe('invoked with two arguments', () => {
             it('should throw error if key is not a string', () => {
                 expect(() => container.registerFunction(undefined, testFunction)).toThrow();
@@ -290,61 +276,101 @@ describe('Container', () => {
                 container.registerFunction('someKey', testFunction);
                 expect(() => container.registerFunction('someKey', testFunction)).toThrow();
             });
-            it('should register the function using specified key', () => {
+            it('should register function using specified key', () => {
                 container.registerFunction('someKey', testFunction);
                 expect(container.isRegistered('someKey')).toBeTruthy();
             });
         });
-
         describe('invoked with invalid count of arguments', () => {
             it('should throw error', () => {
                 expect(() => container.registerFunction('someKey', testFunction, 123)).toThrow();
             });
         });
     });
-
-    describe('resolve', () => {
-        beforeEach(() => {
-            container.registerClass(TestClass);
-            container.registerClass('TestClass2', TestClass);
-            container.registerFunction(testFunction);
-            container.registerFunction('testFunction2', testFunction);
+    describe('registerValue method', () => {
+        it('should throw error if key is not a string', () => {
+            expect(() => container.registerValue(undefined, {})).toThrow();
+            expect(() => container.registerValue(null, {})).toThrow();
+            expect(() => container.registerValue('', {})).toThrow();
+            expect(() => container.registerValue({}, {})).toThrow();
+            expect(() => container.registerValue('     ', {})).toThrow();
         });
-        it('should resolve class registered with its original name', () => {
-            var obj = container.resolve('TestClass');
-            expect(typeof obj).toBe('object');
-            expect(obj.value).toBe('TestClass');
+        it('should throw error if key is not a valid JavaScript identifier', () => {
+            expect(() => container.registerValue(' 4_asd-? ', {})).toThrow();
         });
-        it('should resolve function registered with its original name', () => {
-            var fn = container.resolve('testFunction');
-            expect(typeof fn).toBe('function');
-            expect(fn()).toBe('testFunction');
+        it('should throw error if value is undefined', () => {
+            expect(() => container.registerValue('someKey', undefined)).toThrow();
         });
-        it('should resolve class registered with custom name', () => {
-            var obj = container.resolve('TestClass2');
-            expect(typeof obj).toBe('object');
-            expect(obj.value).toBe('TestClass');
+        it('should throw error if element with specified key is already registered', () => {
+            container.registerValue('someKey', {});
+            expect(() => container.registerValue('someKey', {})).toThrow();
         });
-        it('should resolve function registered with custom name', () => {
-            var fn = container.resolve('testFunction2');
-            expect(typeof fn).toBe('function');
-            expect(fn()).toBe('testFunction');
+        it('should register value using specified key', () => {
+            container.registerValue('someKey', { value: 'someValue' });
+            expect(container.isRegistered('someKey')).toBeTruthy();
         });
     });
+    describe('resolve method', () => {
+        beforeEach(() => {
+            container.registerClass(TestClass);
+            container.registerClass('dependency1', TestClass2);
+            container.registerFunction(testFunction);
+            container.registerFunction('dependency2', testFunction2);
+        });
+        describe('should return class', () => {
+            it('registered with its original name', () => {
+                var obj = container.resolve('TestClass');
+                expect(typeof obj).toBe('object');
+                expect(obj.value).toBe('TestClass');
+            });
+            it('registered with custom name', () => {
+                var obj = container.resolve('dependency1');
+                expect(typeof obj).toBe('object');
+                expect(obj.value).toBe('TestClass2');
+            });
+            it('with dependencies injected', () => {
+                var obj = container.resolve('TestClass');
+                expect(obj.value).toBe('TestClass');
+                expect(obj.dependency1.value).toBe('TestClass2');
+                expect(obj.dependency2()).toBe('testFunction2');
+            });
+        });
+        describe('should return function', () => {
+            it('registered with its original name', () => {
+                var fn = container.resolve('testFunction');
+                expect(typeof fn).toBe('function');
+                expect(fn()).toBe('testFunction');
+            });
+            it('registered with custom name', () => {
+                var fn = container.resolve('dependency2');
+                expect(typeof fn).toBe('function');
+                expect(fn()).toBe('testFunction2');
+            });
+        });
+    });
+    it('should register itself with "container" key', () => {
+        expect(container.isRegistered('container')).toBeTruthy();
+    })
 });
 
 class TestClass {
-    value:string = 'TestClass';
-    someString:string;
-    someNumber:number;
-    static $inject = ['SomeStringService', 'SomeNumberService'];
-
-    constructor(someString:string, someNumber:number) {
-        this.someString = someString;
-        this.someNumber = someNumber;
+    public value:string = 'TestClass';
+    public dependency1:any;
+    public dependency2:any;
+    constructor(dependency1, dependency2) {
+        this.dependency1 = dependency1;
+        this.dependency2 = dependency2;
     }
+}
+
+class TestClass2 {
+    public value:string = 'TestClass2';
 }
 
 function testFunction() {
     return 'testFunction';
+}
+
+function testFunction2() {
+    return 'testFunction2';
 }

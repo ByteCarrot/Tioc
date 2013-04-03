@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<testsuites>
+  <testsuite name="Chrome 28.0 (Windows)" package="" timestamp="2013-04-03T20:48:48" id="0" hostname="RWAMWCOE27003" tests="55" errors="0" failures="0" time="0.009">
+    <properties>
+      <property name="browser.fullName" value="Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/28.0.1461.0 Safari/537.36"/>
+    </properties>
+    <testcase name="should return true if value is a string" time="0.001" classname="Chrome 28.0 (Windows).Value isString"/>
+    <testcase name="should return false if value is not a string" time="0.001" classname="Chrome 28.0 (Windows).Value isString"/>
+    <testcase name="should return true if value is not an empty string" time="0" classname="Chrome 28.0 (Windows).Value isNotEmptyString"/>
+    <testcase name="should return false if value is not a string nor empty string" time="0" classname="Chrome 28.0 (Windows).Value isNotEmptyString"/>
+    <testcase name="should return true if value is a function" time="0" classname="Chrome 28.0 (Windows).Value isFunction"/>
+    <testcase name="should return false if value is not a function" time="0" classname="Chrome 28.0 (Windows).Value isFunction"/>
+    <testcase name="should return true if value is a valid identifier" time="0" classname="Chrome 28.0 (Windows).Value isIdentifier"/>
+    <testcase name="should return false if value is not a valid identifier" time="0" classname="Chrome 28.0 (Windows).Value isIdentifier"/>
+    <testcase name="should be able to analyze anonymous function" time="0" classname="Chrome 28.0 (Windows).Reflector analyze"/>
+    <testcase name="should be able to analyze anonymous function without arguments" time="0" classname="Chrome 28.0 (Windows).Reflector analyze"/>
+    <testcase name="should be able to analyze standard JavaScript function" time="0" classname="Chrome 28.0 (Windows).Reflector analyze"/>
+    <testcase name="should be able to analyze class constructor" time="0" classname="Chrome 28.0 (Windows).Reflector analyze"/>
+    <testcase name="should throw error when argument is not a function" time="0.001" classname="Chrome 28.0 (Windows).Reflector analyze"/>
+    <testcase name="should create instance using parameterless constructor" time="0" classname="Chrome 28.0 (Windows).Activator createInstance"/>
+    <testcase name="should create instance using constructor with a single argument" time="0" classname="Chrome 28.0 (Windows).Activator createInstance"/>
+    <testcase name="should return true if specified class is registered" time="0" classname="Chrome 28.0 (Windows).Container isRegistered"/>
+    <testcase name="should return true if specified function is registered" time="0.001" classname="Chrome 28.0 (Windows).Container isRegistered"/>
+    <testcase name="should return false if specified class is not registered" time="0" classname="Chrome 28.0 (Windows).Container isRegistered"/>
+    <testcase name="should return false if specified function is not registered" time="0" classname="Chrome 28.0 (Windows).Container isRegistered"/>
+    <testcase name="should throw error if key is undefined" time="0" classname="Chrome 28.0 (Windows).Container isRegistered"/>
+    <testcase name="should throw error if key is null" time="0" classname="Chrome 28.0 (Windows).Container isRegistered"/>
+    <testcase name="should throw error if key is not a string" time="0.001" classname="Chrome 28.0 (Windows).Container isRegistered"/>
+    <testcase name="should throw error if key is an empty string" time="0" classname="Chrome 28.0 (Windows).Container isRegistered"/>
+    <testcase name="should throw error if argument is not a valid class definition" time="0" classname="Chrome 28.0 (Windows).Container registerClass method invoked with one argument"/>
+    <testcase name="should throw error if argument is anonymous function" time="0" classname="Chrome 28.0 (Windows).Container registerClass method invoked with one argument"/>
+    <testcase name="should throw error if element with specified key is already registered" time="0.001" classname="Chrome 28.0 (Windows).Container registerClass method invoked with one argument"/>
+    <testcase name="should register class using its original name" time="0" classname="Chrome 28.0 (Windows).Container registerClass method invoked with one argument"/>
+    <testcase name="should throw error if key is not a string" time="0" classname="Chrome 28.0 (Windows).Container registerClass method invoked with two arguments"/>
+    <testcase name="should throw error if key is not a valid JavaScript identifier" time="0" classname="Chrome 28.0 (Windows).Container registerClass method invoked with two arguments"/>
+    <testcase name="should throw error if value is not a valid class definition" time="0" classname="Chrome 28.0 (Windows).Container registerClass method invoked with two arguments"/>
+    <testcase name="should throw error if value is anonymous function" time="0" classname="Chrome 28.0 (Windows).Container registerClass method invoked with two arguments"/>
+    <testcase name="should throw error if element with specified key is already registered" time="0" classname="Chrome 28.0 (Windows).Container registerClass method invoked with two arguments"/>
+    <testcase name="should register class using specified key" time="0" classname="Chrome 28.0 (Windows).Container registerClass method invoked with two arguments"/>
+    <testcase name="should throw error" time="0" classname="Chrome 28.0 (Windows).Container registerClass method invoked with invalid count of arguments"/>
+    <testcase name="should throw error if argument is not a valid function" time="0" classname="Chrome 28.0 (Windows).Container registerFunction method invoked with one argument"/>
+    <testcase name="should throw error if argument is anonymous function" time="0" classname="Chrome 28.0 (Windows).Container registerFunction method invoked with one argument"/>
+    <testcase name="should throw error if element with specified key is already registered" time="0" classname="Chrome 28.0 (Windows).Container registerFunction method invoked with one argument"/>
+    <testcase name="should register function using its original name" time="0.001" classname="Chrome 28.0 (Windows).Container registerFunction method invoked with one argument"/>
+    <testcase name="should throw error if key is not a string" time="0" classname="Chrome 28.0 (Windows).Container registerFunction method invoked with two arguments"/>
+    <testcase name="should throw error if key is not a valid JavaScript identifier" time="0" classname="Chrome 28.0 (Windows).Container registerFunction method invoked with two arguments"/>
+    <testcase name="should throw error if value is not a valid function" time="0" classname="Chrome 28.0 (Windows).Container registerFunction method invoked with two arguments"/>
+    <testcase name="should throw error if element with specified key is already registered" time="0" classname="Chrome 28.0 (Windows).Container registerFunction method invoked with two arguments"/>
+    <testcase name="should register function using specified key" time="0" classname="Chrome 28.0 (Windows).Container registerFunction method invoked with two arguments"/>
+    <testcase name="should throw error" time="0.001" classname="Chrome 28.0 (Windows).Container registerFunction method invoked with invalid count of arguments"/>
+    <testcase name="should throw error if key is not a string" time="0" classname="Chrome 28.0 (Windows).Container registerValue method"/>
+    <testcase name="should throw error if key is not a valid JavaScript identifier" time="0" classname="Chrome 28.0 (Windows).Container registerValue method"/>
+    <testcase name="should throw error if value is undefined" time="0" classname="Chrome 28.0 (Windows).Container registerValue method"/>
+    <testcase name="should throw error if element with specified key is already registered" time="0" classname="Chrome 28.0 (Windows).Container registerValue method"/>
+    <testcase name="should register value using specified key" time="0" classname="Chrome 28.0 (Windows).Container registerValue method"/>
+    <testcase name="registered with its original name" time="0.001" classname="Chrome 28.0 (Windows).Container resolve method should return class"/>
+    <testcase name="registered with custom name" time="0" classname="Chrome 28.0 (Windows).Container resolve method should return class"/>
+    <testcase name="with dependencies injected" time="0" classname="Chrome 28.0 (Windows).Container resolve method should return class"/>
+    <testcase name="registered with its original name" time="0" classname="Chrome 28.0 (Windows).Container resolve method should return function"/>
+    <testcase name="registered with custom name" time="0" classname="Chrome 28.0 (Windows).Container resolve method should return function"/>
+    <testcase name="should register itself with &quot;container&quot; key" time="0" classname="Chrome 28.0 (Windows).Container"/>
+    <system-out><![CDATA[
+]]></system-out>
+    <system-err/>
+  </testsuite>
+</testsuites>

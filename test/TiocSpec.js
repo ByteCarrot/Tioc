@@ -97,8 +97,8 @@ describe('Reflector', function () {
             expect(info.name).toBe('TestClass');
             expect(info.kind).toBe('function');
             expect(info.members.length).toBe(2);
-            expect(info.members[0]).toBe('someString');
-            expect(info.members[1]).toBe('someNumber');
+            expect(info.members[0]).toBe('dependency1');
+            expect(info.members[1]).toBe('dependency2');
         });
         it('should throw error when argument is not a function', function () {
             expect(function () {
@@ -224,7 +224,7 @@ describe('Container', function () {
                     return container.registerClass(TestClass);
                 }).toThrow();
             });
-            it('should register the class using its original name', function () {
+            it('should register class using its original name', function () {
                 container.registerClass(TestClass);
                 expect(container.isRegistered('TestClass')).toBeTruthy();
             });
@@ -280,7 +280,7 @@ describe('Container', function () {
                     return container.registerClass('someKey', TestClass);
                 }).toThrow();
             });
-            it('should register the class using specified key', function () {
+            it('should register class using specified key', function () {
                 container.registerClass('someKey', TestClass);
                 expect(container.isRegistered('someKey')).toBeTruthy();
             });
@@ -328,7 +328,7 @@ describe('Container', function () {
                     return container.registerFunction(someFunction);
                 }).toThrow();
             });
-            it('should register the function using its original name', function () {
+            it('should register function using its original name', function () {
                 function someFunction() {
                 }
                 ;
@@ -381,7 +381,7 @@ describe('Container', function () {
                     return container.registerFunction('someKey', testFunction);
                 }).toThrow();
             });
-            it('should register the function using specified key', function () {
+            it('should register function using specified key', function () {
                 container.registerFunction('someKey', testFunction);
                 expect(container.isRegistered('someKey')).toBeTruthy();
             });
@@ -394,48 +394,116 @@ describe('Container', function () {
             });
         });
     });
-    describe('resolve', function () {
+    describe('registerValue method', function () {
+        it('should throw error if key is not a string', function () {
+            expect(function () {
+                return container.registerValue(undefined, {
+                });
+            }).toThrow();
+            expect(function () {
+                return container.registerValue(null, {
+                });
+            }).toThrow();
+            expect(function () {
+                return container.registerValue('', {
+                });
+            }).toThrow();
+            expect(function () {
+                return container.registerValue({
+                }, {
+                });
+            }).toThrow();
+            expect(function () {
+                return container.registerValue('     ', {
+                });
+            }).toThrow();
+        });
+        it('should throw error if key is not a valid JavaScript identifier', function () {
+            expect(function () {
+                return container.registerValue(' 4_asd-? ', {
+                });
+            }).toThrow();
+        });
+        it('should throw error if value is undefined', function () {
+            expect(function () {
+                return container.registerValue('someKey', undefined);
+            }).toThrow();
+        });
+        it('should throw error if element with specified key is already registered', function () {
+            container.registerValue('someKey', {
+            });
+            expect(function () {
+                return container.registerValue('someKey', {
+                });
+            }).toThrow();
+        });
+        it('should register value using specified key', function () {
+            container.registerValue('someKey', {
+                value: 'someValue'
+            });
+            expect(container.isRegistered('someKey')).toBeTruthy();
+        });
+    });
+    describe('resolve method', function () {
         beforeEach(function () {
             container.registerClass(TestClass);
-            container.registerClass('TestClass2', TestClass);
+            container.registerClass('dependency1', TestClass2);
             container.registerFunction(testFunction);
-            container.registerFunction('testFunction2', testFunction);
+            container.registerFunction('dependency2', testFunction2);
         });
-        it('should resolve class registered with its original name', function () {
-            var obj = container.resolve('TestClass');
-            expect(typeof obj).toBe('object');
-            expect(obj.value).toBe('TestClass');
+        describe('should return class', function () {
+            it('registered with its original name', function () {
+                var obj = container.resolve('TestClass');
+                expect(typeof obj).toBe('object');
+                expect(obj.value).toBe('TestClass');
+            });
+            it('registered with custom name', function () {
+                var obj = container.resolve('dependency1');
+                expect(typeof obj).toBe('object');
+                expect(obj.value).toBe('TestClass2');
+            });
+            it('with dependencies injected', function () {
+                var obj = container.resolve('TestClass');
+                expect(obj.value).toBe('TestClass');
+                expect(obj.dependency1.value).toBe('TestClass2');
+                expect(obj.dependency2()).toBe('testFunction2');
+            });
         });
-        it('should resolve function registered with its original name', function () {
-            var fn = container.resolve('testFunction');
-            expect(typeof fn).toBe('function');
-            expect(fn()).toBe('testFunction');
+        describe('should return function', function () {
+            it('registered with its original name', function () {
+                var fn = container.resolve('testFunction');
+                expect(typeof fn).toBe('function');
+                expect(fn()).toBe('testFunction');
+            });
+            it('registered with custom name', function () {
+                var fn = container.resolve('dependency2');
+                expect(typeof fn).toBe('function');
+                expect(fn()).toBe('testFunction2');
+            });
         });
-        it('should resolve class registered with custom name', function () {
-            var obj = container.resolve('TestClass2');
-            expect(typeof obj).toBe('object');
-            expect(obj.value).toBe('TestClass');
-        });
-        it('should resolve function registered with custom name', function () {
-            var fn = container.resolve('testFunction2');
-            expect(typeof fn).toBe('function');
-            expect(fn()).toBe('testFunction');
-        });
+    });
+    it('should register itself with "container" key', function () {
+        expect(container.isRegistered('container')).toBeTruthy();
     });
 });
 var TestClass = (function () {
-    function TestClass(someString, someNumber) {
+    function TestClass(dependency1, dependency2) {
         this.value = 'TestClass';
-        this.someString = someString;
-        this.someNumber = someNumber;
+        this.dependency1 = dependency1;
+        this.dependency2 = dependency2;
     }
-    TestClass.$inject = [
-        'SomeStringService', 
-        'SomeNumberService'
-    ];
     return TestClass;
+})();
+var TestClass2 = (function () {
+    function TestClass2() {
+        this.value = 'TestClass2';
+    }
+    return TestClass2;
 })();
 function testFunction() {
     return 'testFunction';
+}
+function testFunction2() {
+    return 'testFunction2';
 }
 //@ sourceMappingURL=TiocSpec.js.map

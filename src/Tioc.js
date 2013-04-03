@@ -61,10 +61,11 @@ var ByteCarrot;
         })();
         Tioc.Activator = Activator;        
         var RegistryItem = (function () {
-            function RegistryItem(key, type, value) {
+            function RegistryItem(key, type, value, deps) {
                 this.key = key;
                 this.type = type;
                 this.value = value;
+                this.dependencies = deps;
             }
             return RegistryItem;
         })();        
@@ -74,15 +75,17 @@ var ByteCarrot;
                 this.reflector = new Reflector();
                 this.registry = {
                 };
+                this.registerValue('container', this);
             }
-            Container.prototype.set = function (key, type, value) {
+            Container.prototype.set = function (key, type, value, deps) {
+                if (typeof deps === "undefined") { deps = []; }
                 if(!Value.isIdentifier(key)) {
                     throw new Error(key + ' is not a valid JavaScript identifier');
                 }
                 if(this.registry[key] !== undefined && this.registry[key] !== null) {
                     throw new Error(key + ' already registered');
                 }
-                this.registry[key] = new RegistryItem(key, type, value);
+                this.registry[key] = new RegistryItem(key, type, value, deps);
             };
             Container.prototype.get = function (key) {
                 if(this.registry[key] === undefined || this.registry[key] === null) {
@@ -100,13 +103,13 @@ var ByteCarrot;
                     if(info.name === null) {
                         throw new Error('Anonymous function cannot be a class constructor');
                     }
-                    this.set(info.name, 'class', args[0]);
+                    this.set(info.name, 'class', args[0], info.members);
                 } else if(args.length === 2 && Value.isNotEmptyString(args[0]) && Value.isFunction(args[1])) {
                     var info = this.reflector.analyze(args[1]);
                     if(info.name === null) {
                         throw new Error('Anonymous function cannot be a class constructor');
                     }
-                    this.set(args[0], 'class', args[1]);
+                    this.set(args[0], 'class', args[1], info.members);
                 } else {
                     throw new Error('Invalid arguments');
                 }
@@ -121,12 +124,22 @@ var ByteCarrot;
                     if(info.name === null) {
                         throw new Error('Anonymous function can be only registered with key provided');
                     }
-                    this.set(info.name, 'function', args[0]);
+                    this.set(info.name, 'function', args[0], []);
                 } else if(args.length === 2 && Value.isNotEmptyString(args[0]) && Value.isFunction(args[1])) {
-                    this.set(args[0], 'function', args[1]);
+                    var info = this.reflector.analyze(args[1]);
+                    this.set(args[0], 'function', args[1], []);
                 } else {
                     throw new Error('Invalid arguments');
                 }
+            };
+            Container.prototype.registerValue = function (key, value) {
+                if(!Value.isNotEmptyString(key)) {
+                    throw new Error('Invalid key');
+                }
+                if(value === undefined) {
+                    throw new Error('Value is undefined');
+                }
+                this.set(key, 'value', value, []);
             };
             Container.prototype.isRegistered = function (key) {
                 if(!Value.isNotEmptyString(key) || !Value.isIdentifier(key)) {
@@ -137,12 +150,13 @@ var ByteCarrot;
             Container.prototype.resolve = function (key) {
                 var item = this.get(key);
                 if(item.type === 'class') {
-                    return this.activator.createInstance(item.value, []);
+                    var args = [];
+                    for(var i in item.dependencies) {
+                        args.push(this.resolve(item.dependencies[i]));
+                    }
+                    return this.activator.createInstance(item.value, args);
                 }
                 return this.get(key).value;
-            };
-            Container.prototype.isClass = function (key) {
-                return key[0] === key[0].toUpperCase();
             };
             return Container;
         })();
