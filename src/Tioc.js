@@ -93,12 +93,22 @@ var ByteCarrot;
                 }
                 return this.registry[key];
             };
-            Container.prototype.collectDependencies = function (item) {
+            Container.prototype.collectDependencies = function (item, allDeps) {
+                this.ensureNoCircularDependencies(item, allDeps);
                 var deps = [];
                 for(var i in item.dependencies) {
-                    deps.push(this.resolve(item.dependencies[i]));
+                    deps.push(this.resolveInternal(item.dependencies[i], allDeps));
                 }
                 return deps;
+            };
+            Container.prototype.ensureNoCircularDependencies = function (item, allDeps) {
+                for(var i in item.dependencies) {
+                    var dep = item.dependencies[i];
+                    if(allDeps.indexOf(dep) >= 0) {
+                        throw new Error('Circular dependency found');
+                    }
+                    allDeps.push(dep);
+                }
             };
             Container.prototype.registerFunctionInternal = function (type, args) {
                 if(args.length === 1 && Value.isFunction(args[0])) {
@@ -113,6 +123,16 @@ var ByteCarrot;
                 } else {
                     throw new Error('Invalid arguments');
                 }
+            };
+            Container.prototype.resolveInternal = function (key, allDeps) {
+                var item = this.get(key);
+                if(item.type === 'class') {
+                    return this.activator.createInstance(item.value, this.collectDependencies(item, allDeps));
+                }
+                if(item.type === 'factory') {
+                    return item.value.apply(null, this.collectDependencies(item, allDeps));
+                }
+                return this.get(key).value;
             };
             Container.prototype.registerClass = function () {
                 var args = [];
@@ -165,14 +185,7 @@ var ByteCarrot;
                 return this.registry[key] !== undefined && this.registry[key] !== null;
             };
             Container.prototype.resolve = function (key) {
-                var item = this.get(key);
-                if(item.type === 'class') {
-                    return this.activator.createInstance(item.value, this.collectDependencies(item));
-                }
-                if(item.type === 'factory') {
-                    return item.value.apply(null, this.collectDependencies(item));
-                }
-                return this.get(key).value;
+                return this.resolveInternal(key, []);
             };
             return Container;
         })();

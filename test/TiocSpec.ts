@@ -424,7 +424,20 @@ describe('Container', () => {
     });
     it('should register itself with "container" key', () => {
         expect(container.isRegistered('container')).toBeTruthy();
+    });
+    it('should inject itself as dependency when required', () => {
+        container.registerFactory('something', (container) => { return container; });
+        var c = container.resolve('something');
+        expect(c).toBe(container);
+    });
+    it('should throw error if dependency cannot be resolved', () => {
+        container.registerFactory('something', (notExistingDependency) => { return null; });
+        expect(() => container.resolve('something')).toThrow();
     })
+    it('should prevent circular dependencies and throw error', () => {
+        container.registerFactory('something', (something) => { return null; })
+        expect(() => container.resolve('something')).toThrow("Circular dependency found");
+    });
 });
 
 class TestClass {

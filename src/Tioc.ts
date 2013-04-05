@@ -86,12 +86,22 @@ module ByteCarrot.Tioc {
             }
             return this.registry[key];
         }
-        private collectDependencies(item:RegistryItem):any[] {
+        private collectDependencies(item:RegistryItem, allDeps:string[]):any[] {
+            this.ensureNoCircularDependencies(item, allDeps);
             var deps = [];
             for (var i in item.dependencies) {
-                deps.push(this.resolve(item.dependencies[i]));
+                deps.push(this.resolveInternal(item.dependencies[i], allDeps));
             }
             return deps;
+        }
+        private ensureNoCircularDependencies(item:RegistryItem, allDeps:string[]):void {
+            for (var i in item.dependencies) {
+                var dep = item.dependencies[i];
+                if (allDeps.indexOf(dep) >= 0) {
+                    throw new Error('Circular dependency found');
+                }
+                allDeps.push(dep);
+            }
         }
         private registerFunctionInternal(type:string, args:any[]):void {
             if (args.length === 1 && Value.isFunction(args[0])) {
@@ -106,6 +116,17 @@ module ByteCarrot.Tioc {
             } else {
                 throw new Error('Invalid arguments');
             }
+        }
+        private resolveInternal(key:string, allDeps:string[]):any {
+            var item = this.get(key);
+
+            if (item.type === 'class') {
+                return this.activator.createInstance(item.value, this.collectDependencies(item, allDeps));
+            }
+            if (item.type === 'factory') {
+                return item.value.apply(null, this.collectDependencies(item, allDeps));
+            }
+            return this.get(key).value;
         }
         public registerClass(...args:any[]):void {
             if (args.length === 1 && Value.isFunction(args[0])) {
@@ -146,14 +167,7 @@ module ByteCarrot.Tioc {
             return this.registry[key] !== undefined && this.registry[key] !== null;
         }
         public resolve(key:string):any {
-            var item = this.get(key);
-            if (item.type === 'class') {
-                return this.activator.createInstance(item.value, this.collectDependencies(item));
-            }
-            if (item.type === 'factory') {
-                return item.value.apply(null, this.collectDependencies(item));
-            }
-            return this.get(key).value;
+            return this.resolveInternal(key, []);
         }
     }
 }
