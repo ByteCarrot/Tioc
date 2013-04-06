@@ -186,7 +186,7 @@ module ByteCarrot.Tioc {
                 return this.resolveInternal(key);
             } catch (e) {
                 if (e instanceof RangeError) {
-                    throw new Error('Circular dependency found', e);
+                    throw new Error('Circular dependency found');
                 }
                 throw e;
             }
