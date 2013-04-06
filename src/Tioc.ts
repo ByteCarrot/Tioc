@@ -89,22 +89,12 @@ module ByteCarrot.Tioc {
             }
             return this.registry[key];
         }
-        private collectDependencies(item:RegistryItem, allDeps:string[]):any[] {
-            this.ensureNoCircularDependencies(item, allDeps);
+        private collectDependencies(item:RegistryItem):any[] {
             var deps = [];
             for (var i in item.dependencies) {
-                deps.push(this.resolveInternal(item.dependencies[i], allDeps));
+                deps.push(this.resolveInternal(item.dependencies[i]));
             }
             return deps;
-        }
-        private ensureNoCircularDependencies(item:RegistryItem, allDeps:string[]):void {
-            for (var i in item.dependencies) {
-                var dep = item.dependencies[i];
-                if (allDeps.indexOf(dep) >= 0) {
-                    throw new Error('Circular dependency found');
-                }
-                allDeps.push(dep);
-            }
         }
         private toLowerCamelCase(value:string):string {
             return value.charAt(0).toLowerCase() + value.slice(1);
@@ -123,14 +113,13 @@ module ByteCarrot.Tioc {
                 throw new Error('Invalid arguments');
             }
         }
-        private resolveInternal(key:string, allDeps:string[]):any {
+        private resolveInternal(key:string):any {
             var item = this.get(key);
-
             if (item.type === 'class') {
-                return this.activator.createInstance(item.value, this.collectDependencies(item, allDeps));
+                return this.activator.createInstance(item.value, this.collectDependencies(item));
             }
             if (item.type === 'factory') {
-                return item.value.apply(null, this.collectDependencies(item, allDeps));
+                return item.value.apply(null, this.collectDependencies(item));
             }
             return this.get(key).value;
         }
@@ -193,7 +182,15 @@ module ByteCarrot.Tioc {
             return this.registry[key] !== undefined && this.registry[key] !== null;
         }
         public resolve(key:string):any {
-            return this.resolveInternal(key, []);
+            try {
+                return this.resolveInternal(key);
+            } catch (e) {
+                if (e instanceof RangeError) {
+                    throw new Error('Circular dependency found', e);
+                }
+                throw e;
+            }
+
         }
     }
 }

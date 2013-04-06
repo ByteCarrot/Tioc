@@ -691,6 +691,18 @@ describe('Container', function () {
             return container.resolve('something');
         }).toThrow("Circular dependency found");
     });
+    it('should resolve more complex types of dependencies', function () {
+        container.registerFactory('something1', function () {
+            return null;
+        });
+        container.registerFactory('something2', function (something1) {
+            return null;
+        });
+        container.registerFactory('something3', function (something1, something2) {
+            return null;
+        });
+        container.resolve('something3');
+    });
 });
 var TestClass = (function () {
     function TestClass(dependency1, dependency2) {

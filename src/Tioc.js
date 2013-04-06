@@ -96,22 +96,12 @@ var ByteCarrot;
                 }
                 return this.registry[key];
             };
-            Container.prototype.collectDependencies = function (item, allDeps) {
-                this.ensureNoCircularDependencies(item, allDeps);
+            Container.prototype.collectDependencies = function (item) {
                 var deps = [];
                 for(var i in item.dependencies) {
-                    deps.push(this.resolveInternal(item.dependencies[i], allDeps));
+                    deps.push(this.resolveInternal(item.dependencies[i]));
                 }
                 return deps;
-            };
-            Container.prototype.ensureNoCircularDependencies = function (item, allDeps) {
-                for(var i in item.dependencies) {
-                    var dep = item.dependencies[i];
-                    if(allDeps.indexOf(dep) >= 0) {
-                        throw new Error('Circular dependency found');
-                    }
-                    allDeps.push(dep);
-                }
             };
             Container.prototype.toLowerCamelCase = function (value) {
                 return value.charAt(0).toLowerCase() + value.slice(1);
@@ -130,13 +120,13 @@ var ByteCarrot;
                     throw new Error('Invalid arguments');
                 }
             };
-            Container.prototype.resolveInternal = function (key, allDeps) {
+            Container.prototype.resolveInternal = function (key) {
                 var item = this.get(key);
                 if(item.type === 'class') {
-                    return this.activator.createInstance(item.value, this.collectDependencies(item, allDeps));
+                    return this.activator.createInstance(item.value, this.collectDependencies(item));
                 }
                 if(item.type === 'factory') {
-                    return item.value.apply(null, this.collectDependencies(item, allDeps));
+                    return item.value.apply(null, this.collectDependencies(item));
                 }
                 return this.get(key).value;
             };
@@ -211,7 +201,14 @@ var ByteCarrot;
                 return this.registry[key] !== undefined && this.registry[key] !== null;
             };
             Container.prototype.resolve = function (key) {
-                return this.resolveInternal(key, []);
+                try  {
+                    return this.resolveInternal(key);
+                } catch (e) {
+                    if(e instanceof RangeError) {
+                        throw new Error('Circular dependency found', e);
+                    }
+                    throw e;
+                }
             };
             return Container;
         })();

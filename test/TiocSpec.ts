@@ -481,6 +481,12 @@ describe('Container', () => {
         container.registerFactory('something', (something) => { return null; })
         expect(() => container.resolve('something')).toThrow("Circular dependency found");
     });
+    it('should resolve more complex types of dependencies', () => {
+        container.registerFactory('something1', () => { return null; });
+        container.registerFactory('something2', (something1) => { return null; });
+        container.registerFactory('something3', (something1, something2) => { return null; });
+        container.resolve('something3');
+    });
 });
 
 class TestClass {
