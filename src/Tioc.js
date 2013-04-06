@@ -122,7 +122,7 @@ var ByteCarrot;
                     if(info.name === null) {
                         throw new Error('Anonymous function can be only registered with key provided');
                     }
-                    this.set(info.name, type, args[0], info.members);
+                    this.set(this.toLowerCamelCase(info.name), type, args[0], info.members);
                 } else if(args.length === 2 && Value.isNotEmptyString(args[0]) && Value.isFunction(args[1])) {
                     var info = this.reflector.analyze(args[1]);
                     this.set(args[0], type, args[1], info.members);

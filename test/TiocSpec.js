@@ -241,6 +241,10 @@ describe('Container', function () {
                 container.registerClass(TestClass);
                 expect(container.isRegistered('testClass')).toBeTruthy();
             });
+            it('should register class with lower camel case name', function () {
+                container.registerClass(TestClass);
+                expect(container.isRegistered('testClass')).toBeTruthy();
+            });
         });
         describe('invoked with two arguments', function () {
             it('should throw error if key is not a string', function () {
@@ -348,6 +352,13 @@ describe('Container', function () {
                 container.registerFunction(someFunction);
                 expect(container.isRegistered('someFunction')).toBeTruthy();
             });
+            it('should register function with lower camel case name', function () {
+                function SomeUpperCamelCaseFunction() {
+                }
+                ;
+                container.registerFactory(SomeUpperCamelCaseFunction);
+                expect(container.isRegistered('someUpperCamelCaseFunction')).toBeTruthy();
+            });
         });
         describe('invoked with two arguments', function () {
             it('should throw error if key is not a string', function () {
@@ -445,6 +456,13 @@ describe('Container', function () {
                 ;
                 container.registerFactory(someFunction);
                 expect(container.isRegistered('someFunction')).toBeTruthy();
+            });
+            it('should register function with lower camel case name', function () {
+                function SomeUpperCamelCaseFactory() {
+                }
+                ;
+                container.registerFactory(SomeUpperCamelCaseFactory);
+                expect(container.isRegistered('someUpperCamelCaseFactory')).toBeTruthy();
             });
         });
         describe('invoked with two arguments', function () {
@@ -575,6 +593,11 @@ describe('Container', function () {
             }).toThrow();
         });
         it('should register all exported types from registered module', function () {
+            container.registerModule(ByteCarrot.TestModule);
+            expect(container.isRegistered('class1')).toBeTruthy();
+            expect(container.isRegistered('class2')).toBeTruthy();
+        });
+        it('should register all exported classes with lower camel case names', function () {
             container.registerModule(ByteCarrot.TestModule);
             expect(container.isRegistered('class1')).toBeTruthy();
             expect(container.isRegistered('class2')).toBeTruthy();

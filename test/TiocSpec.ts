@@ -205,6 +205,10 @@ describe('Container', () => {
                 container.registerClass(TestClass);
                 expect(container.isRegistered('testClass')).toBeTruthy();
             });
+            it('should register class with lower camel case name', () => {
+                container.registerClass(TestClass);
+                expect(container.isRegistered('testClass')).toBeTruthy();
+            });
         });
         describe('invoked with two arguments', () => {
             it('should throw error if key is not a string', () => {
@@ -255,16 +259,19 @@ describe('Container', () => {
                 })).toThrow();
             });
             it('should throw error if element with specified key is already registered', () => {
-                function someFunction() {
-                };
+                function someFunction() {};
                 container.registerFunction(someFunction);
                 expect(() => container.registerFunction(someFunction)).toThrow();
             });
             it('should register function using its original name', () => {
-                function someFunction() {
-                };
+                function someFunction() {};
                 container.registerFunction(someFunction);
                 expect(container.isRegistered('someFunction')).toBeTruthy();
+            });
+            it('should register function with lower camel case name', () => {
+                function SomeUpperCamelCaseFunction() {};
+                container.registerFactory(SomeUpperCamelCaseFunction);
+                expect(container.isRegistered('someUpperCamelCaseFunction')).toBeTruthy();
             });
         });
         describe('invoked with two arguments', () => {
@@ -319,6 +326,11 @@ describe('Container', () => {
                 function someFunction() {};
                 container.registerFactory(someFunction);
                 expect(container.isRegistered('someFunction')).toBeTruthy();
+            });
+            it('should register function with lower camel case name', () => {
+                function SomeUpperCamelCaseFactory() {};
+                container.registerFactory(SomeUpperCamelCaseFactory);
+                expect(container.isRegistered('someUpperCamelCaseFactory')).toBeTruthy();
             });
         });
         describe('invoked with two arguments', () => {
@@ -389,7 +401,11 @@ describe('Container', () => {
             expect(container.isRegistered('class1')).toBeTruthy();
             expect(container.isRegistered('class2')).toBeTruthy();
         });
-
+        it('should register all exported classes with lower camel case names', () => {
+            container.registerModule(ByteCarrot.TestModule);
+            expect(container.isRegistered('class1')).toBeTruthy();
+            expect(container.isRegistered('class2')).toBeTruthy();
+        });
     });
     describe('resolve method', () => {
         beforeEach(() => {
