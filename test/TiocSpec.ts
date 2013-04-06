@@ -16,6 +16,18 @@ describe('Value', () => {
             expect(Value.isString([])).toBeFalsy();
         });
     });
+    describe('isObject', () => {
+        it('should return true if value is an object', () => {
+            expect(Value.isObject({})).toBeTruthy();
+            expect(Value.isObject(new TestClass2())).toBeTruthy();
+        });
+        it('should return false if value is not an object', () => {
+            expect(Value.isObject(undefined)).toBeFalsy();
+            expect(Value.isObject(null)).toBeFalsy();
+            expect(Value.isObject('')).toBeFalsy();
+            expect(Value.isObject([])).toBeFalsy();
+        });
+    });
     describe('isNotEmptyString', () => {
         it('should return true if value is not an empty string', () => {
             expect(Value.isNotEmptyString('d')).toBeTruthy();
@@ -148,7 +160,7 @@ describe('Container', () => {
             container.registerFunction('testFunction2', testFunction);
         });
         it('should return true if specified class is registered', () => {
-            expect(container.isRegistered('TestClass')).toBeTruthy();
+            expect(container.isRegistered('testClass')).toBeTruthy();
         });
         it('should return true if specified function is registered', () => {
             expect(container.isRegistered('testFunction')).toBeTruthy();
@@ -191,7 +203,7 @@ describe('Container', () => {
             });
             it('should register class using its original name', () => {
                 container.registerClass(TestClass);
-                expect(container.isRegistered('TestClass')).toBeTruthy();
+                expect(container.isRegistered('testClass')).toBeTruthy();
             });
         });
         describe('invoked with two arguments', () => {
@@ -364,6 +376,21 @@ describe('Container', () => {
             expect(container.isRegistered('someKey')).toBeTruthy();
         });
     });
+    describe('registerModule method', () => {
+        it('should throw error if value is not a valid module', () => {
+            expect(() => container.registerModule(undefined)).toThrow();
+            expect(() => container.registerModule(null)).toThrow();
+            expect(() => container.registerModule('')).toThrow();
+            expect(() => container.registerModule(testFunction)).toThrow();
+            expect(() => container.registerModule({})).toThrow();
+        });
+        it('should register all exported types from registered module', () => {
+            container.registerModule(ByteCarrot.TestModule);
+            expect(container.isRegistered('class1')).toBeTruthy();
+            expect(container.isRegistered('class2')).toBeTruthy();
+        });
+
+    });
     describe('resolve method', () => {
         beforeEach(() => {
             container.registerClass(TestClass);
@@ -376,7 +403,7 @@ describe('Container', () => {
         });
         describe('should return class', () => {
             it('registered with its original name', () => {
-                var obj = container.resolve('TestClass');
+                var obj = container.resolve('testClass');
                 expect(typeof obj).toBe('object');
                 expect(obj.value).toBe('TestClass');
             });
@@ -386,7 +413,7 @@ describe('Container', () => {
                 expect(obj.value).toBe('TestClass2');
             });
             it('with dependencies injected', () => {
-                var obj = container.resolve('TestClass');
+                var obj = container.resolve('testClass');
                 expect(obj.value).toBe('TestClass');
                 expect(obj.dependency1.value).toBe('TestClass2');
                 expect(obj.dependency2()).toBe('testFunction2');
@@ -442,11 +469,7 @@ describe('Container', () => {
 
 class TestClass {
     public value:string = 'TestClass';
-    public dependency1:any;
-    public dependency2:any;
-    constructor(dependency1, dependency2) {
-        this.dependency1 = dependency1;
-        this.dependency2 = dependency2;
+    constructor(public dependency1, public dependency2) {
     }
 }
 
@@ -468,4 +491,14 @@ function testFactory() {
 
 function testFactory2(dependency3) {
     return '<' + dependency3 + '>';
+}
+
+module ByteCarrot.TestModule {
+    export class Class1 {
+    }
+
+    export class Class2 {
+        constructor(public class1:Class1) {
+        }
+    }
 }

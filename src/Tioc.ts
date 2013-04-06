@@ -3,6 +3,9 @@ module ByteCarrot.Tioc {
         public static isString(value:any):bool {
             return value !== undefined && value !== null && typeof value === 'string';
         }
+        public static isObject(value:any):bool {
+            return value !== undefined && value !== null && typeof value === 'object' && Object.prototype.toString.call(value) !== '[object Array]';
+        }
         public static isNotEmptyString(value:any):bool {
             return Value.isString(value) && value.trim().length > 0;
         }
@@ -103,6 +106,9 @@ module ByteCarrot.Tioc {
                 allDeps.push(dep);
             }
         }
+        private toLowerCamelCase(value:string):string {
+            return value.charAt(0).toLowerCase() + value.slice(1);
+        }
         private registerFunctionInternal(type:string, args:any[]):void {
             if (args.length === 1 && Value.isFunction(args[0])) {
                 var info = this.reflector.analyze(args[0]);
@@ -134,7 +140,7 @@ module ByteCarrot.Tioc {
                 if (info.name === null) {
                     throw new Error('Anonymous function cannot be a class constructor');
                 }
-                this.set(info.name, 'class', args[0], info.members);
+                this.set(this.toLowerCamelCase(info.name), 'class', args[0], info.members);
             } else if (args.length === 2 && Value.isNotEmptyString(args[0]) && Value.isFunction(args[1])) {
                 var info = this.reflector.analyze(args[1]);
                 if (info.name === null) {
@@ -159,6 +165,26 @@ module ByteCarrot.Tioc {
                 throw new Error('Value is undefined');
             }
             this.set(key, 'value', value, []);
+        }
+        public registerModule(mod:any):void {
+            if (mod === undefined || mod === null || typeof mod !== 'object') {
+                throw new Error('Passed value is not a module');
+            }
+            var counter = 0;
+            for(var member in mod) {
+                if (!Value.isFunction(mod[member])) {
+                    continue;
+                }
+                var info = this.reflector.analyze(mod[member]);
+                if (info.name === null) {
+                    continue;
+                }
+                this.registerClass(this.toLowerCamelCase(info.name), mod[member]);
+                counter++;
+            }
+            if (counter === 0) {
+                throw new Error('No exported types found');
+            }
         }
         public isRegistered(key:any):bool {
             if (!Value.isNotEmptyString(key) || !Value.isIdentifier(key)) {

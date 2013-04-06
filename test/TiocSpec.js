@@ -14,6 +14,19 @@ describe('Value', function () {
             expect(Value.isString([])).toBeFalsy();
         });
     });
+    describe('isObject', function () {
+        it('should return true if value is an object', function () {
+            expect(Value.isObject({
+            })).toBeTruthy();
+            expect(Value.isObject(new TestClass2())).toBeTruthy();
+        });
+        it('should return false if value is not an object', function () {
+            expect(Value.isObject(undefined)).toBeFalsy();
+            expect(Value.isObject(null)).toBeFalsy();
+            expect(Value.isObject('')).toBeFalsy();
+            expect(Value.isObject([])).toBeFalsy();
+        });
+    });
     describe('isNotEmptyString', function () {
         it('should return true if value is not an empty string', function () {
             expect(Value.isNotEmptyString('d')).toBeTruthy();
@@ -156,7 +169,7 @@ describe('Container', function () {
             container.registerFunction('testFunction2', testFunction);
         });
         it('should return true if specified class is registered', function () {
-            expect(container.isRegistered('TestClass')).toBeTruthy();
+            expect(container.isRegistered('testClass')).toBeTruthy();
         });
         it('should return true if specified function is registered', function () {
             expect(container.isRegistered('testFunction')).toBeTruthy();
@@ -226,7 +239,7 @@ describe('Container', function () {
             });
             it('should register class using its original name', function () {
                 container.registerClass(TestClass);
-                expect(container.isRegistered('TestClass')).toBeTruthy();
+                expect(container.isRegistered('testClass')).toBeTruthy();
             });
         });
         describe('invoked with two arguments', function () {
@@ -542,6 +555,31 @@ describe('Container', function () {
             expect(container.isRegistered('someKey')).toBeTruthy();
         });
     });
+    describe('registerModule method', function () {
+        it('should throw error if value is not a valid module', function () {
+            expect(function () {
+                return container.registerModule(undefined);
+            }).toThrow();
+            expect(function () {
+                return container.registerModule(null);
+            }).toThrow();
+            expect(function () {
+                return container.registerModule('');
+            }).toThrow();
+            expect(function () {
+                return container.registerModule(testFunction);
+            }).toThrow();
+            expect(function () {
+                return container.registerModule({
+                });
+            }).toThrow();
+        });
+        it('should register all exported types from registered module', function () {
+            container.registerModule(ByteCarrot.TestModule);
+            expect(container.isRegistered('class1')).toBeTruthy();
+            expect(container.isRegistered('class2')).toBeTruthy();
+        });
+    });
     describe('resolve method', function () {
         beforeEach(function () {
             container.registerClass(TestClass);
@@ -556,7 +594,7 @@ describe('Container', function () {
         });
         describe('should return class', function () {
             it('registered with its original name', function () {
-                var obj = container.resolve('TestClass');
+                var obj = container.resolve('testClass');
                 expect(typeof obj).toBe('object');
                 expect(obj.value).toBe('TestClass');
             });
@@ -566,7 +604,7 @@ describe('Container', function () {
                 expect(obj.value).toBe('TestClass2');
             });
             it('with dependencies injected', function () {
-                var obj = container.resolve('TestClass');
+                var obj = container.resolve('testClass');
                 expect(obj.value).toBe('TestClass');
                 expect(obj.dependency1.value).toBe('TestClass2');
                 expect(obj.dependency2()).toBe('testFunction2');
@@ -633,9 +671,9 @@ describe('Container', function () {
 });
 var TestClass = (function () {
     function TestClass(dependency1, dependency2) {
-        this.value = 'TestClass';
         this.dependency1 = dependency1;
         this.dependency2 = dependency2;
+        this.value = 'TestClass';
     }
     return TestClass;
 })();
@@ -657,4 +695,22 @@ function testFactory() {
 function testFactory2(dependency3) {
     return '<' + dependency3 + '>';
 }
+var ByteCarrot;
+(function (ByteCarrot) {
+    (function (TestModule) {
+        var Class1 = (function () {
+            function Class1() { }
+            return Class1;
+        })();
+        TestModule.Class1 = Class1;        
+        var Class2 = (function () {
+            function Class2(class1) {
+                this.class1 = class1;
+            }
+            return Class2;
+        })();
+        TestModule.Class2 = Class2;        
+    })(ByteCarrot.TestModule || (ByteCarrot.TestModule = {}));
+    var TestModule = ByteCarrot.TestModule;
+})(ByteCarrot || (ByteCarrot = {}));
 //@ sourceMappingURL=TiocSpec.js.map

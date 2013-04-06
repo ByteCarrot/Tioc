@@ -6,6 +6,9 @@ var ByteCarrot;
             Value.isString = function isString(value) {
                 return value !== undefined && value !== null && typeof value === 'string';
             };
+            Value.isObject = function isObject(value) {
+                return value !== undefined && value !== null && typeof value === 'object' && Object.prototype.toString.call(value) !== '[object Array]';
+            };
             Value.isNotEmptyString = function isNotEmptyString(value) {
                 return Value.isString(value) && value.trim().length > 0;
             };
@@ -110,6 +113,9 @@ var ByteCarrot;
                     allDeps.push(dep);
                 }
             };
+            Container.prototype.toLowerCamelCase = function (value) {
+                return value.charAt(0).toLowerCase() + value.slice(1);
+            };
             Container.prototype.registerFunctionInternal = function (type, args) {
                 if(args.length === 1 && Value.isFunction(args[0])) {
                     var info = this.reflector.analyze(args[0]);
@@ -144,7 +150,7 @@ var ByteCarrot;
                     if(info.name === null) {
                         throw new Error('Anonymous function cannot be a class constructor');
                     }
-                    this.set(info.name, 'class', args[0], info.members);
+                    this.set(this.toLowerCamelCase(info.name), 'class', args[0], info.members);
                 } else if(args.length === 2 && Value.isNotEmptyString(args[0]) && Value.isFunction(args[1])) {
                     var info = this.reflector.analyze(args[1]);
                     if(info.name === null) {
@@ -177,6 +183,26 @@ var ByteCarrot;
                     throw new Error('Value is undefined');
                 }
                 this.set(key, 'value', value, []);
+            };
+            Container.prototype.registerModule = function (mod) {
+                if(mod === undefined || mod === null || typeof mod !== 'object') {
+                    throw new Error('Passed value is not a module');
+                }
+                var counter = 0;
+                for(var member in mod) {
+                    if(!Value.isFunction(mod[member])) {
+                        continue;
+                    }
+                    var info = this.reflector.analyze(mod[member]);
+                    if(info.name === null) {
+                        continue;
+                    }
+                    this.registerClass(this.toLowerCamelCase(info.name), mod[member]);
+                    counter++;
+                }
+                if(counter === 0) {
+                    throw new Error('No exported types found');
+                }
             };
             Container.prototype.isRegistered = function (key) {
                 if(!Value.isNotEmptyString(key) || !Value.isIdentifier(key)) {
