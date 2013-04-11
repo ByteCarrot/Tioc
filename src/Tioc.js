@@ -64,11 +64,12 @@ var ByteCarrot;
         })();
         Tioc.Activator = Activator;        
         var RegistryItem = (function () {
-            function RegistryItem(key, type, value, deps) {
+            function RegistryItem(key, type, value, dependencies, singleton) {
                 this.key = key;
                 this.type = type;
                 this.value = value;
-                this.dependencies = deps;
+                this.dependencies = dependencies;
+                this.singleton = singleton;
             }
             return RegistryItem;
         })();        
@@ -88,7 +89,15 @@ var ByteCarrot;
                 if(this.registry[key] !== undefined && this.registry[key] !== null) {
                     throw new Error(key + ' already registered');
                 }
-                this.registry[key] = new RegistryItem(key, type, value, deps);
+                var singleton = false;
+                if(type === 'class' && value.$ioc !== undefined && value.$ioc.singleton !== undefined) {
+                    if(value.$ioc.singleton === true) {
+                        singleton = true;
+                    } else {
+                        throw new Error('Unknown value in ' + key + '.$ioc.singleton');
+                    }
+                }
+                this.registry[key] = new RegistryItem(key, type, value, deps, singleton);
             };
             Container.prototype.get = function (key) {
                 if(this.registry[key] === undefined || this.registry[key] === null) {
@@ -123,7 +132,12 @@ var ByteCarrot;
             Container.prototype.resolveInternal = function (key) {
                 var item = this.get(key);
                 if(item.type === 'class') {
-                    return this.activator.createInstance(item.value, this.collectDependencies(item));
+                    var obj = this.activator.createInstance(item.value, this.collectDependencies(item));
+                    if(item.singleton) {
+                        delete this.registry[item.key];
+                        this.registerValue(item.key, obj);
+                    }
+                    return obj;
                 }
                 if(item.type === 'factory') {
                     return item.value.apply(null, this.collectDependencies(item));

@@ -312,6 +312,37 @@ describe('Container', function () {
                 }).toThrow();
             });
         });
+        it('should take into account $ioc.singleton setting', function () {
+        });
+        it('should accept $ioc.singleton === "true" if the class should be treated as a singleton', function () {
+            TestSingleton.$ioc = {
+                singleton: true
+            };
+            container.registerClass(TestSingleton);
+            var value1 = container.resolve('testSingleton');
+            var value2 = container.resolve('testSingleton');
+            expect(value1).toBe(value2);
+        });
+        it('should throw error if value of $ioc.singleton will be different than "true"', function () {
+            TestSingleton.$ioc = {
+                singleton: false
+            };
+            expect(function () {
+                return container.registerClass('singleton1', TestSingleton);
+            }).toThrow();
+            TestSingleton.$ioc = {
+                singleton: 'abc'
+            };
+            expect(function () {
+                return container.registerClass('singleton2', TestSingleton);
+            }).toThrow();
+            TestSingleton.$ioc = {
+                singleton: null
+            };
+            expect(function () {
+                return container.registerClass('singleton3', TestSingleton);
+            }).toThrow();
+        });
     });
     describe('registerFunction method', function () {
         describe('invoked with one argument', function () {
@@ -717,6 +748,15 @@ var TestClass2 = (function () {
         this.value = 'TestClass2';
     }
     return TestClass2;
+})();
+var TestSingleton = (function () {
+    function TestSingleton() {
+        this.value = 'TestSingleton';
+    }
+    TestSingleton.$ioc = {
+        singleton: true
+    };
+    return TestSingleton;
 })();
 function testFunction() {
     return 'testFunction';

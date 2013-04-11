@@ -245,6 +245,24 @@ describe('Container', () => {
                 expect(() => container.registerClass('someKey', TestClass, 123)).toThrow();
             });
         });
+        it('should take into account $ioc.singleton setting', () => {
+
+        });
+        it('should accept $ioc.singleton === "true" if the class should be treated as a singleton', () => {
+            TestSingleton.$ioc = { singleton:true };
+            container.registerClass(TestSingleton);
+            var value1 = container.resolve('testSingleton');
+            var value2 = container.resolve('testSingleton');
+            expect(value1).toBe(value2);
+        });
+        it('should throw error if value of $ioc.singleton will be different than "true"', () => {
+            TestSingleton.$ioc = { singleton:false };
+            expect(() => container.registerClass('singleton1', TestSingleton)).toThrow();
+            TestSingleton.$ioc = { singleton:'abc' };
+            expect(() => container.registerClass('singleton2', TestSingleton)).toThrow();
+            TestSingleton.$ioc = { singleton:null };
+            expect(() => container.registerClass('singleton3', TestSingleton)).toThrow();
+        });
     });
     describe('registerFunction method', () => {
         describe('invoked with one argument', () => {
@@ -487,6 +505,9 @@ describe('Container', () => {
         container.registerFactory('something3', (something1, something2) => { return null; });
         container.resolve('something3');
     });
+
+
+
 });
 
 class TestClass {
@@ -497,6 +518,11 @@ class TestClass {
 
 class TestClass2 {
     public value:string = 'TestClass2';
+}
+
+class TestSingleton {
+    public value:string = 'TestSingleton';
+    public static $ioc = { singleton:true };
 }
 
 function testFunction() {

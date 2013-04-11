@@ -55,15 +55,12 @@ module ByteCarrot.Tioc {
     }
 
     class RegistryItem {
-        public key:string;
-        public type:string;
-        public value:any;
-        public dependencies:string[];
-        constructor(key:string, type:string, value:any, deps:string[]) {
-            this.key = key;
-            this.type = type;
-            this.value = value;
-            this.dependencies = deps;
+        constructor(
+            public key:string,
+            public type:string,
+            public value:any,
+            public dependencies:string[],
+            public singleton:bool) {
         }
     }
 
@@ -81,7 +78,15 @@ module ByteCarrot.Tioc {
             if (this.registry[key] !== undefined && this.registry[key] !== null) {
                 throw new Error(key + ' already registered');
             }
-            this.registry[key] = new RegistryItem(key, type, value, deps);
+            var singleton = false;
+            if (type === 'class' && value.$ioc !== undefined && value.$ioc.singleton !== undefined) {
+                if (value.$ioc.singleton === true) {
+                    singleton = true;
+                } else {
+                    throw new Error('Unknown value in ' + key + '.$ioc.singleton');
+                }
+            }
+            this.registry[key] = new RegistryItem(key, type, value, deps, singleton);
         }
         private get(key:string):RegistryItem {
             if (this.registry[key] === undefined || this.registry[key] === null) {
@@ -116,7 +121,12 @@ module ByteCarrot.Tioc {
         private resolveInternal(key:string):any {
             var item = this.get(key);
             if (item.type === 'class') {
-                return this.activator.createInstance(item.value, this.collectDependencies(item));
+                var obj = this.activator.createInstance(item.value, this.collectDependencies(item));
+                if (item.singleton) {
+                    delete this.registry[item.key];
+                    this.registerValue(item.key, obj);
+                }
+                return obj;
             }
             if (item.type === 'factory') {
                 return item.value.apply(null, this.collectDependencies(item));
