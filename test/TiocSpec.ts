@@ -505,9 +505,6 @@ describe('Container', () => {
         container.registerFactory('something3', (something1, something2) => { return null; });
         container.resolve('something3');
     });
-
-
-
 });
 
 class TestClass {
@@ -522,7 +519,7 @@ class TestClass2 {
 
 class TestSingleton {
     public value:string = 'TestSingleton';
-    public static $ioc = { singleton:true };
+    public static $ioc:any = { singleton:true };
 }
 
 function testFunction() {
