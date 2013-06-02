@@ -1,3 +1,5 @@
+// Karma configuration
+
 // base path, that will be used to resolve files and exclude
 basePath = '';
 
@@ -13,7 +15,7 @@ files = [
 exclude = [];
 
 // test results reporter to use
-// possible values: 'dots', 'progress', 'junit'
+// possible values: dots || progress || growl
 reporters = ['dots'];
 
 // web server port
@@ -30,7 +32,7 @@ colors = true;
 logLevel = LOG_INFO;
 
 // enable / disable watching file and executing tests whenever any file changes
-autoWatch = true;
+autoWatch = false;
 
 // Start these browsers, currently available:
 // - Chrome
@@ -43,7 +45,7 @@ autoWatch = true;
 browsers = ['Chrome'];
 
 // If browser does not capture in given timeout [ms], kill it
-captureTimeout = 60000;
+captureTimeout = 5000;
 
 // Continuous Integration mode
 // if true, it capture browsers, run tests and exit

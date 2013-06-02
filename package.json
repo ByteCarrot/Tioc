@@ -1,0 +1,8 @@
+{
+  "name": "Tioc",
+  "version": "0.0.0",
+  "description": "",
+  "dependencies": {
+    "karma": "~0.8.5"
+  }
+}
