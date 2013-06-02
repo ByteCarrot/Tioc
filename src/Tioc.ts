@@ -1,4 +1,4 @@
-module ByteCarrot.Tioc { 
+module ByteCarrot.Tioc {
     export class Value {
         public static isString(value:any):bool {
             return value !== undefined && value !== null && typeof value === 'string';
