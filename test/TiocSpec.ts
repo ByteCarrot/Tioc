@@ -1,5 +1,4 @@
-/// <reference path="jasmine.d.ts" />
-/// <reference path="../src/Tioc.ts" />
+/// <reference path="_all.ts" />
 
 describe('Value', () => {
     var Value = ByteCarrot.Tioc.Value;
